@@ -5,7 +5,6 @@ import { BUSINESS_TYPES, DETAILS_MAX, PROBLEMS, TURNOVERS, validateInput } from 
 import type { AuditInput, AuditReport, BusinessType, Problem, Turnover } from '../../shared/audit'
 import { AuditError, ERROR_TEXT, runAudit } from '../lib/auditClient'
 import { buildDemoReport } from '../lib/demoReport'
-import SectionHead from './ui/SectionHead'
 import Reveal from './ui/Reveal'
 import Icon from './ui/Icon'
 import ReportView from './ReportView'
@@ -112,13 +111,7 @@ export default function Audit() {
   const filled = [form.businessType, form.turnover, form.problem, form.employees].filter(Boolean).length
 
   return (
-    <section className="section audit" id="audit" aria-labelledby="audit-title">
-      <div className="container" ref={topRef}>
-        <SectionHead
-          eyebrow="Без данных"
-          title={<span id="audit-title">Нет таблицы? Быстрый аудит по анкете</span>}
-          lead="Четыре вопроса — и готовый план на 30 дней."
-        />
+    <div className="ws-body" ref={topRef}>
 
         <AnimatePresence mode="wait">
           {phase.name === 'form' && (
@@ -323,8 +316,7 @@ export default function Audit() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </section>
+    </div>
   )
 }
 

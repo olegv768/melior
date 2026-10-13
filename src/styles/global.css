@@ -126,7 +126,7 @@ p {
 
 .section {
   position: relative;
-  padding: clamp(80px, 12vw, 150px) 0;
+  padding: clamp(64px, 9vw, 112px) 0;
 }
 
 .mono {
@@ -175,8 +175,9 @@ p {
 }
 
 .section-head h2 {
-  margin-top: 18px;
-  font-size: clamp(34px, 5.2vw, 64px);
+  margin-top: 14px;
+  font-size: clamp(30px, 4.2vw, 50px);
+  letter-spacing: -0.03em;
 }
 
 .section-head p {

@@ -6,7 +6,6 @@ import type { PeriodDays, ProviderId, SalesData } from '../../shared/marketplace
 import { MP_ERROR_TEXT, MpError, fetchMarketplace } from '../lib/marketplaceClient'
 import { buildDemoSales } from '../lib/demoSales'
 import { fmtCur, fmtInt } from '../lib/format'
-import SectionHead from './ui/SectionHead'
 import Reveal from './ui/Reveal'
 import Icon from './ui/Icon'
 import SalesDashboard from './SalesDashboard'
@@ -77,13 +76,7 @@ export default function Marketplaces() {
   const loaded = PROVIDERS.filter((x) => datasets[x.id])
 
   return (
-    <section className="section mp" id="marketplaces" aria-labelledby="mp-title">
-      <div className="container">
-        <SectionHead
-          eyebrow="Маркетплейсы"
-          title={<span id="mp-title">Kaspi, Wildberries и Ozon в одном месте</span>}
-          lead="Подключите кабинет продавца — увидите выручку, отмены и слабые товары."
-        />
+    <div className="ws-body">
 
         <Reveal>
           <div className="mp-tabs" role="tablist" aria-label="Маркетплейс">
@@ -207,7 +200,6 @@ export default function Marketplaces() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </section>
+    </div>
   )
 }

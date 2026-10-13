@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { SalesData } from '../../shared/marketplace'
 import { FIELDS, MAX_FILE_MB, buildSales, downloadText, findHeaderRow, guessMapping, readWorkbook, sampleSalesCsv, validateMapping } from '../lib/table'
 import type { Cell, FieldKey, Mapping, Sheet } from '../lib/table'
-import SectionHead from './ui/SectionHead'
 import Icon from './ui/Icon'
 import SalesDashboard from './SalesDashboard'
 import './Upload.css'
@@ -52,13 +51,7 @@ export default function Upload() {
   }
 
   return (
-    <section className="section up" id="upload" aria-labelledby="up-title">
-      <div className="container">
-        <SectionHead
-          eyebrow="Ваши данные"
-          title={<span id="up-title">Загрузите таблицу продаж</span>}
-          lead="Excel или CSV из кассы, 1С, Kaspi или своей таблицы. Файл обрабатывается в браузере и никуда не отправляется."
-        />
+    <div className="ws-body">
 
         <AnimatePresence mode="wait">
           {(stage.name === 'drop' || stage.name === 'reading') && (
@@ -74,7 +67,7 @@ export default function Upload() {
               >
                 <input ref={inputRef} type="file" accept=".xlsx,.xlsm,.xls,.csv,.txt" hidden onChange={onPick} />
                 <span className="drop-icon" aria-hidden="true">
-                  <Icon name="flow" size={26} />
+                  <Icon name="upload" size={26} />
                 </span>
                 {stage.name === 'reading' ? (
                   <p role="status">
@@ -82,8 +75,13 @@ export default function Upload() {
                   </p>
                 ) : (
                   <>
-                    <p className="drop-title">Перетащите файл сюда</p>
-                    <p className="muted small">.xlsx, .xls, .csv · до {MAX_FILE_MB} МБ</p>
+                    <p className="drop-title">Перетащите таблицу продаж</p>
+                    <p className="muted small">.xlsx, .xls, .csv · до {MAX_FILE_MB} МБ · колонки определим сами</p>
+                    <ul className="drop-sources" aria-label="Подходящие источники">
+                      {['Касса', '1С', 'Выгрузка Kaspi', 'iiko / r_keeper', 'Google Таблицы', 'Excel'].map((s) => (
+                        <li key={s}>{s}</li>
+                      ))}
+                    </ul>
                     <div className="drop-actions">
                       <button type="button" className="btn btn-primary" onClick={() => inputRef.current?.click()}>
                         Выбрать файл
@@ -121,8 +119,7 @@ export default function Upload() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </section>
+    </div>
   )
 }
 

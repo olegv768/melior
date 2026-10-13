@@ -5,7 +5,6 @@ import { analyseFunnel, funnelWhatIf } from '../../shared/marketplace'
 import type { FunnelSummary } from '../../shared/marketplace'
 import { downloadText, readWorkbook, sampleFunnelCsv, toNumber } from '../lib/table'
 import { fmtCur, fmtInt } from '../lib/format'
-import SectionHead from './ui/SectionHead'
 import Icon from './ui/Icon'
 import AiBlock from './AiBlock'
 import './Funnel.css'
@@ -87,9 +86,7 @@ export default function Funnel() {
   }
 
   return (
-    <section className="section fn" id="funnel" aria-labelledby="fn-title">
-      <div className="container">
-        <SectionHead eyebrow="Воронка" title={<span id="fn-title">Где теряются клиенты</span>} lead="Введите, сколько людей дошло до каждого этапа, или загрузите таблицу «этап — число»." />
+    <div className="ws-body">
 
         <div className="fn-wrap">
           <div className="fn-input panel">
@@ -176,13 +173,20 @@ export default function Funnel() {
               <FunnelResult stages={result} avgCheck={toNumber(avgCheck) ?? 0} currency={currency} />
             ) : (
               <div className="fn-empty">
-                <span className="muted">Заполните этапы и нажмите «Рассчитать».</span>
+                <div className="fn-ghost" aria-hidden="true">
+                  {[100, 78, 56, 24, 18].map((w, i) => (
+                    <span key={i} style={{ width: `${w}%` }} />
+                  ))}
+                </div>
+                <p>
+                  <b>Здесь появится ваша воронка</b>
+                  <span className="muted small">Конверсия каждого шага, узкое место и сколько денег оно стоит.</span>
+                </p>
               </div>
             )}
           </div>
         </div>
-      </div>
-    </section>
+    </div>
   )
 }
 

@@ -1,0 +1,168 @@
+.ws {
+  position: relative;
+  padding: clamp(56px, 8vw, 96px) 0 clamp(64px, 9vw, 110px);
+  scroll-margin-top: 68px;
+}
+.ws::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 420px;
+  background: radial-gradient(50% 100% at 50% 0%, rgba(76, 125, 255, 0.08), transparent 70%);
+  pointer-events: none;
+}
+.ws-head {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.ws-head h2 {
+  margin-top: 12px;
+  font-size: clamp(30px, 4vw, 46px);
+  letter-spacing: -0.03em;
+}
+.ws-privacy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-2);
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+}
+.ws-privacy svg {
+  color: var(--good);
+}
+
+/* tab bar — sticks under the nav while working */
+.ws-tabs {
+  position: sticky;
+  top: 76px;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line-2);
+  background: rgba(12, 14, 19, 0.82);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9);
+}
+.ws-tabs button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 13px;
+  background: none;
+  text-align: left;
+  color: var(--muted);
+  transition: color 0.2s, background 0.2s;
+}
+.ws-tabs button:hover:not(.is-on) {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-2);
+}
+.ws-tabs button > *:not(.ws-tab-bg) {
+  position: relative;
+  z-index: 1;
+}
+.ws-tabs button.is-on {
+  color: var(--text);
+}
+.ws-tab-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 13px;
+  background: linear-gradient(180deg, rgba(76, 125, 255, 0.2), rgba(76, 125, 255, 0.08));
+  box-shadow: 0 0 0 1px rgba(76, 125, 255, 0.45) inset, 0 8px 24px -12px rgba(76, 125, 255, 0.7);
+}
+.ws-tab-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  transition: color 0.2s, border-color 0.2s;
+}
+.ws-tabs button.is-on .ws-tab-icon {
+  color: #b8c8ff;
+  border-color: rgba(76, 125, 255, 0.45);
+}
+.ws-tab-text {
+  display: grid;
+  min-width: 0;
+}
+.ws-tab-text b {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.ws-tab-text span {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ws-tab-n {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--muted);
+  opacity: 0.7;
+}
+.ws-panel {
+  animation: wsIn 0.35s var(--ease);
+}
+@keyframes wsIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.ws-body {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .ws-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    top: 72px;
+  }
+  .ws-tabs button {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 4px;
+    text-align: center;
+  }
+  .ws-tab-text span,
+  .ws-tab-n {
+    display: none;
+  }
+  .ws-tab-text b {
+    font-size: 12.5px;
+  }
+  .ws-tab-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+@media (max-width: 400px) {
+  .ws-tab-text b {
+    font-size: 11.5px;
+  }
+}

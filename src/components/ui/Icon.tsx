@@ -14,6 +14,11 @@ const PATHS = {
   minus: 'M6 12h12',
   plus: 'M12 6v12M6 12h12',
   arrow: 'M5 12h14M13 6l6 6-6 6',
+  table: 'M4 5h16v14H4zM4 10h16M4 14.5h16M10 10v9',
+  store: 'M4 9l1.5-5h13L20 9M4 9h16M4 9v10h16V9M9 19v-5h6v5',
+  funnel: 'M4 5h16l-6 7.5V18l-4 2v-7.5z',
+  form: 'M7 3.5h10v17H7zM10 8h4M10 12h4M10 16h2',
+  upload: 'M12 16V4M7 9l5-5 5 5M5 20h14',
 } as const
 
 export type IconName = keyof typeof PATHS

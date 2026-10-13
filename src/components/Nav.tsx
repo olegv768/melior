@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Logo from './ui/Logo'
-import { NAV } from '../config'
+import { NAV, TAB_EVENT } from '../config'
 import './Nav.css'
 
 export default function Nav() {
@@ -17,20 +17,15 @@ export default function Nav() {
   }, [])
 
   useEffect(() => {
-    const ids = NAV.map((n) => n.id)
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActive(e.target.id)
-        })
-      },
-      { rootMargin: '-45% 0px -50% 0px' },
-    )
-    ids.forEach((id) => {
-      const el = document.getElementById(id)
-      if (el) obs.observe(el)
-    })
-    return () => obs.disconnect()
+    const sync = () => setActive(window.location.hash.slice(1))
+    const onTab = (e: Event) => setActive((e as CustomEvent<string>).detail)
+    sync()
+    window.addEventListener('hashchange', sync)
+    window.addEventListener(TAB_EVENT, onTab)
+    return () => {
+      window.removeEventListener('hashchange', sync)
+      window.removeEventListener(TAB_EVENT, onTab)
+    }
   }, [])
 
   useEffect(() => {
