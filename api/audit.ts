@@ -1,7 +1,7 @@
 // Vercel Serverless Function: POST /api/audit
 // The Groq key lives only in the server environment (GROQ_API_KEY) and is never sent to the browser.
 import { RESPONSE_SCHEMA, buildPrompt, reportFromModel, validateInput } from '../shared/audit.js'
-import { AiError, clientIp, aiConfigured, aiModel, generateJson, json, makeRateLimiter } from '../server/ai.js'
+import { AiError, aiCheck, clientIp, aiConfigured, aiModel, generateJson, json, makeRateLimiter } from '../server/ai.js'
 
 const rateLimited = makeRateLimiter(30, 10 * 60 * 1000)
 
@@ -28,6 +28,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 }
 
-export function GET(): Response {
-  return json({ ok: true, configured: aiConfigured(), model: aiModel() })
+export async function GET(request: Request): Promise<Response> {
+  const check = new URL(request.url).searchParams.has('check') ? await aiCheck() : undefined
+  return json({ ok: true, configured: aiConfigured(), model: aiModel(), check })
 }

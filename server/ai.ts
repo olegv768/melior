@@ -6,7 +6,7 @@ const ATTEMPT_MS = 25_000
 const TOTAL_MS = 55_000 // Vercel function limit is 60 s (vercel.json)
 
 export class AiError extends Error {
-  code: 'not_configured' | 'ai_quota' | 'ai_busy' | 'ai_failed' | 'ai_timeout'
+  code: 'not_configured' | 'ai_key' | 'ai_quota' | 'ai_busy' | 'ai_failed' | 'ai_timeout'
   constructor(code: AiError['code']) {
     super(code)
     this.code = code
@@ -28,7 +28,8 @@ export async function generateJson(prompt: string, schema: unknown): Promise<unk
   const deadline = Date.now() + TOTAL_MS
   const statuses: number[] = []
 
-  for (const model of [...new Set([MODEL(), FALLBACK_MODEL])]) {
+  // main model twice (JSON mode occasionally fails validation), then the smaller one
+  for (const model of [MODEL(), MODEL(), FALLBACK_MODEL]) {
     const left = deadline - Date.now()
     if (left < 3_000) break
     const controller = new AbortController()
@@ -52,8 +53,9 @@ export async function generateJson(prompt: string, schema: unknown): Promise<unk
       if (!res.ok) {
         statuses.push(res.status)
         console.error('Groq error', model, res.status, (await res.text().catch(() => '')).slice(0, 200))
-        if (res.status === 429 || res.status >= 500 || res.status === 404) continue
-        throw new AiError('ai_failed')
+        if (res.status === 401 || res.status === 403) throw new AiError('ai_key')
+        // 400 = json_validate_failed / bad model name, 429 = limit, 5xx = overload → try again / next model
+        continue
       }
       const data = (await res.json()) as { choices?: { message?: { content?: string } }[] }
       const text = (data.choices?.[0]?.message?.content ?? '').trim().replace(/^```(?:json)?\s*|\s*```$/g, '')
@@ -76,6 +78,18 @@ export async function generateJson(prompt: string, schema: unknown): Promise<unk
   if (statuses.some((s) => s >= 500)) throw new AiError('ai_busy')
   if (statuses.some((s) => s === -1)) throw new AiError('ai_timeout')
   throw new AiError('ai_failed')
+}
+
+/** Tiny live request to check the key from the deployed site (GET /api/audit?check=1). */
+export async function aiCheck(): Promise<{ ok: boolean; status: number }> {
+  const key = process.env.GROQ_API_KEY
+  if (!key) return { ok: false, status: 0 }
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/models', { headers: { authorization: `Bearer ${key}` } })
+    return { ok: res.ok, status: res.status }
+  } catch {
+    return { ok: false, status: -1 }
+  }
 }
 
 /** Naive per-instance limiter; good enough to stop accidental hammering of a free key. */

@@ -1,7 +1,7 @@
 import type { AuditInput, AuditReport } from '../../shared/audit'
 import { buildDemoReport } from './demoReport'
 
-export type AuditErrorKind = 'ai_failed' | 'ai_quota' | 'ai_busy' | 'ai_timeout' | 'rate_limited' | 'invalid_input' | 'network'
+export type AuditErrorKind = 'ai_failed' | 'ai_quota' | 'ai_busy' | 'ai_key' | 'ai_timeout' | 'rate_limited' | 'invalid_input' | 'network'
 
 export class AuditError extends Error {
   kind: AuditErrorKind
@@ -18,6 +18,7 @@ export const ERROR_TEXT: Record<AuditErrorKind, string> = {
   ai_quota: 'Исчерпан бесплатный лимит запросов к ИИ. Попробуйте позже или откройте демонстрационный отчёт.',
   ai_timeout: 'ИИ отвечал слишком долго. Попробуйте ещё раз.',
   ai_busy: 'ИИ сейчас перегружен. Попробуйте через минуту.',
+  ai_key: 'Ключ ИИ на сервере неверный. Проверьте GROQ_API_KEY в настройках Vercel.',
   rate_limited: 'Слишком много запросов подряд. Подождите несколько минут.',
   invalid_input: 'Проверьте поля анкеты.',
   network: 'Нет соединения с сервером. Проверьте интернет и попробуйте снова.',
