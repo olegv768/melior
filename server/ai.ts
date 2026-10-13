@@ -16,8 +16,12 @@ export class AiError extends Error {
   }
 }
 
-// pasted keys often carry a trailing space/newline or quotes, which makes the Authorization header invalid
-const groqKey = () => (process.env.GROQ_API_KEY ?? '').trim().replace(/^["']|["']$/g, '')
+// pasted values often carry quotes, spaces or extra words («gsk_… грок»), which make the Authorization header invalid:
+// take the first token that looks like a key
+const groqKey = () => {
+  const raw = (process.env.GROQ_API_KEY ?? '').replace(/["']/g, ' ')
+  return raw.match(/gsk_[A-Za-z0-9]+/)?.[0] ?? raw.trim().split(/\s+/)[0] ?? ''
+}
 
 export function aiConfigured() {
   return Boolean(groqKey())
