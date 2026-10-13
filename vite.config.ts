@@ -11,9 +11,11 @@ function localApi(): Plugin {
     name: 'melior-local-api',
     apply: 'serve',
     configureServer(server) {
-      server.middlewares.use('/api/audit', async (req, res) => {
+      server.middlewares.use('/api', async (req, res, next) => {
+        const name = (req.url ?? '').split('?')[0].replace(/^\//, '')
+        if (!/^[a-z-]+$/.test(name)) return next()
         try {
-          const mod = (await server.ssrLoadModule('/api/audit.ts')) as Record<
+          const mod = (await server.ssrLoadModule(`/api/${name}.ts`)) as Record<
             string,
             (r: Request) => Promise<Response> | Response
           >
@@ -27,7 +29,7 @@ function localApi(): Plugin {
           for await (const c of req) chunks.push(c as Buffer)
           const headers = new Headers()
           for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v)
-          const request = new Request(`http://localhost${req.url ?? ''}`, {
+          const request = new Request(`http://localhost/api/${name}`, {
             method: req.method,
             headers,
             body: req.method === 'GET' || req.method === 'HEAD' ? undefined : Buffer.concat(chunks),

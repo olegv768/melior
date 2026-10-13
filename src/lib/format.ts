@@ -18,3 +18,11 @@ export const fmtMoneyRange = (low: number, high: number) => {
   if (high >= 1_000) return `${Math.round(low / 1_000).toLocaleString('ru-RU')}–${Math.round(high / 1_000).toLocaleString('ru-RU')} тыс ₸`
   return `${Math.round(low)}–${Math.round(high)} ₸`
 }
+
+/** Money in an arbitrary currency symbol (₸ for Kaspi, ₽ for Wildberries/Ozon). */
+export const fmtCur = (n: number, cur: string) => {
+  const abs = Math.abs(n)
+  if (abs >= 1_000_000) return `${(n / 1_000_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} млн ${cur}`
+  if (abs >= 10_000) return `${Math.round(n / 1_000).toLocaleString('ru-RU')} тыс ${cur}`
+  return `${Math.round(n).toLocaleString('ru-RU')} ${cur}`
+}

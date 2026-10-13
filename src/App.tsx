@@ -2,6 +2,7 @@ import Nav from './components/Nav'
 import Hero from './components/hero/Hero'
 import Analytics from './components/Analytics'
 import Audit from './components/Audit'
+import Marketplaces from './components/Marketplaces'
 import Capabilities from './components/Capabilities'
 import HowItWorks from './components/HowItWorks'
 import BeforeAfter from './components/BeforeAfter'
@@ -23,6 +24,7 @@ export default function App() {
         <Hero />
         <Analytics />
         <Audit />
+        <Marketplaces />
         <Capabilities />
         <HowItWorks />
         <BeforeAfter />

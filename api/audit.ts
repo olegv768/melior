@@ -1,34 +1,13 @@
 // Vercel Serverless Function: POST /api/audit
 // The Gemini key lives only in the server environment (GEMINI_API_KEY) and is never sent to the browser.
 import { GEMINI_RESPONSE_SCHEMA, buildPrompt, reportFromModel, validateInput } from '../shared/audit.js'
+import { GeminiError, clientIp, geminiConfigured, geminiModel, generateJson, json, makeRateLimiter } from '../server/gemini.js'
 
-
-const MODEL = () => process.env.GEMINI_MODEL || 'gemini-2.5-flash'
-const FALLBACK_MODEL = 'gemini-flash-latest'
-const WINDOW_MS = 10 * 60 * 1000
-const MAX_PER_WINDOW = 8
-const hits = new Map<string, number[]>()
-
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
-  })
-
-function rateLimited(ip: string) {
-  const now = Date.now()
-  const list = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS)
-  list.push(now)
-  hits.set(ip, list)
-  return list.length > MAX_PER_WINDOW
-}
+const rateLimited = makeRateLimiter(8, 10 * 60 * 1000)
 
 export async function POST(request: Request): Promise<Response> {
-  const key = process.env.GEMINI_API_KEY
-  if (!key) return json({ error: 'not_configured' }, 503)
-
-  const ip = (request.headers.get('x-forwarded-for') ?? 'local').split(',')[0].trim()
-  if (rateLimited(ip)) return json({ error: 'rate_limited' }, 429)
+  if (!geminiConfigured()) return json({ error: 'not_configured' }, 503)
+  if (rateLimited(clientIp(request))) return json({ error: 'rate_limited' }, 429)
 
   let body: unknown
   try {
@@ -39,48 +18,16 @@ export async function POST(request: Request): Promise<Response> {
   const parsed = validateInput(body)
   if (!parsed.ok) return json({ error: 'invalid_input', fields: parsed.errors }, 422)
 
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 45_000)
-  const payload = JSON.stringify({
-    contents: [{ role: 'user', parts: [{ text: buildPrompt(parsed.value) }] }],
-    generationConfig: {
-      temperature: 0.4,
-      responseMimeType: 'application/json',
-      responseSchema: GEMINI_RESPONSE_SCHEMA,
-    },
-  })
-  const call = (model: string) =>
-    fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
-      body: payload,
-    })
-
   try {
-    let res = await call(MODEL())
-    // model name retired or unavailable for this key → fall back to the rolling alias
-    if (res.status === 404 && MODEL() !== FALLBACK_MODEL) res = await call(FALLBACK_MODEL)
-    if (!res.ok) {
-      const detail = await res.text().catch(() => '')
-      console.error('Gemini error', res.status, detail.slice(0, 500))
-      return json({ error: res.status === 429 ? 'ai_quota' : 'ai_failed' }, 502)
-    }
-    const data = (await res.json()) as {
-      candidates?: { content?: { parts?: { text?: string }[] } }[]
-    }
-    const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? ''
-    const report = reportFromModel(JSON.parse(text), parsed.value)
-    return json({ report })
+    const raw = await generateJson(buildPrompt(parsed.value), GEMINI_RESPONSE_SCHEMA)
+    return json({ report: reportFromModel(raw, parsed.value) })
   } catch (err) {
-    console.error('Audit failed', err)
-    const aborted = err instanceof Error && err.name === 'AbortError'
-    return json({ error: aborted ? 'ai_timeout' : 'ai_failed' }, 502)
-  } finally {
-    clearTimeout(timer)
+    const code = err instanceof GeminiError ? err.code : 'ai_failed'
+    if (!(err instanceof GeminiError)) console.error('Audit failed', err)
+    return json({ error: code }, code === 'not_configured' ? 503 : 502)
   }
 }
 
 export function GET(): Response {
-  return json({ ok: true, configured: Boolean(process.env.GEMINI_API_KEY), model: MODEL() })
+  return json({ ok: true, configured: geminiConfigured(), model: geminiModel() })
 }
