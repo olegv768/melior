@@ -39,21 +39,24 @@ export async function POST(request: Request): Promise<Response> {
     if (limitAi(ip)) return json({ error: 'ai_rate_limited' }, 429)
     try {
       const kind = body.kind === 'funnel' ? 'funnel' : 'sales'
-      const out = (await generateJson(insightsPrompt(kind, summary), INSIGHTS_SCHEMA)) as { recommendations?: unknown }
-      const recs = (Array.isArray(out.recommendations) ? out.recommendations : [])
+      const out = await generateJson(insightsPrompt(kind, summary), INSIGHTS_SCHEMA)
+      const recs = findArray(out)
         .slice(0, 6)
         .map((r) => {
           const o = (r ?? {}) as Record<string, unknown>
           const priority = o.priority === 'high' || o.priority === 'low' ? o.priority : 'medium'
           const rec: Recommendation = {
-            title: String(o.title ?? '').slice(0, 140),
-            detail: String(o.detail ?? '').slice(0, 600),
+            title: String(o.title ?? o.name ?? o.заголовок ?? '').slice(0, 140),
+            detail: String(o.detail ?? o.description ?? o.text ?? o.описание ?? '').slice(0, 600),
             priority,
           }
           return rec
         })
         .filter((r) => r.title && r.detail)
-      if (!recs.length) return json({ error: 'ai_failed' }, 502)
+      if (!recs.length) {
+        console.error('AI insights: no recommendations in', JSON.stringify(out).slice(0, 300))
+        return json({ error: 'ai_failed' }, 502)
+      }
       return json({ recommendations: recs })
     } catch (err) {
       const code = err instanceof AiError ? err.code : 'ai_failed'
@@ -62,4 +65,18 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   return json({ error: 'unknown_action' }, 400)
+}
+
+/** Models sometimes wrap the list differently: {recommendations:[…]}, {рекомендации:[…]}, a bare array… */
+function findArray(v: unknown): unknown[] {
+  if (Array.isArray(v)) return v
+  if (v && typeof v === 'object') {
+    const o = v as Record<string, unknown>
+    if (Array.isArray(o.recommendations)) return o.recommendations
+    for (const x of Object.values(o)) {
+      const found = findArray(x)
+      if (found.length && typeof found[0] === 'object') return found
+    }
+  }
+  return []
 }
