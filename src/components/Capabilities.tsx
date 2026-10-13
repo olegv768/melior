@@ -12,7 +12,7 @@ export default function Capabilities() {
         <SectionHead
           eyebrow="Возможности"
           title={<span id="caps-title">Пять модулей — одна картина бизнеса</span>}
-          lead="Каждый модуль отвечает на конкретный вопрос владельца: где тормозит работа, куда уходят деньги, что можно не делать руками и где лежит дополнительная выручка."
+          lead="Каждый отвечает на один вопрос владельца."
         />
         <div className="bento">
           <Reveal className="bento-cell span-4">
@@ -31,7 +31,7 @@ export default function Capabilities() {
             <AiRecs />
           </Reveal>
         </div>
-        <p className="caps-note muted small">Значения внутри визуализаций — иллюстративные примеры.</p>
+        <p className="caps-note muted small">Значения — примеры.</p>
       </div>
     </section>
   )
@@ -60,7 +60,7 @@ function ProcessIntel() {
         <CapHead
           tag="Process Intelligence"
           title="Находит, где застревает работа"
-          text="Строит карту процесса по данным и показывает этап, на котором копятся задачи и теряется время."
+          text="Показывает этап, где копятся задачи."
         />
         <button type="button" className={`btn btn-sm ${fixed ? 'btn-ghost' : 'btn-primary'}`} onClick={() => setFixed((v) => !v)} aria-pressed={fixed}>
           {fixed ? 'Вернуть как было' : 'Устранить узкое место'}
@@ -125,7 +125,7 @@ function CostOpt() {
   const active = hover !== null ? COSTS[hover] : null
   return (
     <div className="cap">
-      <CapHead tag="Cost Optimization" title="Разбирает расходы по статьям" text="Показывает, какие статьи растут быстрее выручки и где есть резерв." />
+      <CapHead tag="Cost Optimization" title="Разбирает расходы по статьям" text="Где можно сэкономить." />
       <div className="donut-wrap">
         <svg viewBox="0 0 140 140" className="donut" role="img" aria-label="Структура расходов, пример">
           <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="16" />
@@ -189,7 +189,7 @@ function SmartAuto() {
   const saved = TASKS.reduce((a, t, i) => a + (on[i] ? t.h : 0), 0)
   return (
     <div className="cap">
-      <CapHead tag="Smart Automation" title="Убирает рутину" text="Находит повторяющиеся задачи и предлагает, что можно отдать автоматизации." />
+      <CapHead tag="Smart Automation" title="Убирает рутину" text="Что можно не делать руками." />
       <ul className="auto-list">
         {TASKS.map((t, i) => (
           <li key={t.name}>
@@ -231,7 +231,7 @@ function RevenueGrowth() {
   const vals = boost ? [100, 92, 37, 15] : FUNNEL.map((f) => f.v)
   return (
     <div className="cap">
-      <CapHead tag="Revenue Growth" title="Ищет упущенную выручку" text="Показывает, на каком шаге уходят клиенты и что вернёт их в воронку." />
+      <CapHead tag="Revenue Growth" title="Ищет упущенную выручку" text="На каком шаге уходят клиенты." />
       <div className="funnel">
         {FUNNEL.map((f, i) => (
           <div key={f.name} className="funnel-row">
@@ -271,7 +271,7 @@ function AiRecs() {
   const r = RECS[i]
   return (
     <div className="cap" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <CapHead tag="AI Recommendations" title="Говорит, что делать дальше" text="Превращает находки в конкретные шаги с приоритетом и ответственной зоной." />
+      <CapHead tag="AI Recommendations" title="Говорит, что делать дальше" text="Конкретные шаги с приоритетом." />
       <div className="rec-stack" aria-live="polite">
         <AnimatePresence mode="popLayout">
           <motion.div

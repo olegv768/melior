@@ -323,7 +323,7 @@
 /* ---------- Sample report ---------- */
 .sample-frame {
   position: relative;
-  max-height: 760px;
+  max-height: 560px;
   overflow: hidden;
   border-radius: var(--radius-lg);
 }

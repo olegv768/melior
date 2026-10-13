@@ -13,7 +13,7 @@ export default function SampleReport() {
         <SectionHead
           eyebrow="Пример отчёта"
           title={<span id="sample-title">Что получает предприниматель</span>}
-          lead="Отчёт написан языком владельца бизнеса: что не так, почему это важно и что сделать на этой неделе. Ниже — пример для кафе с 9 сотрудниками."
+          lead="Пример для кафе с 9 сотрудниками."
           aside={
             <span className="chip chip-demo">
               <span className="dot" /> Пример · демо-данные

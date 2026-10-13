@@ -66,7 +66,7 @@ export default function Hero() {
               <span className="chip chip-accent">
                 <span className="dot" /> AI Business Audit
               </span>
-              <span>Первичный анализ бизнеса прямо на сайте</span>
+              <span>Аудит бизнеса онлайн</span>
               <span className="arrow" aria-hidden="true">
                 →
               </span>
@@ -93,13 +93,13 @@ export default function Hero() {
 
           <motion.ul className="hero-facts" {...fade(0.42)}>
             <li>
-              <span className="mono">01</span>Таблица, выгрузка из кассы или ответы на вопросы
+              <span className="mono">01</span>Таблица, касса или анкета
             </li>
             <li>
-              <span className="mono">02</span>Без интеграций и обучения на старте
+              <span className="mono">02</span>Без интеграций
             </li>
             <li>
-              <span className="mono">03</span>План действий на 30 дней, а не общие советы
+              <span className="mono">03</span>План на 30 дней
             </li>
           </motion.ul>
         </div>

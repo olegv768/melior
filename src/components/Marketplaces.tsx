@@ -90,8 +90,8 @@ export default function Marketplaces() {
       <div className="container">
         <SectionHead
           eyebrow="Маркетплейсы"
-          title={<span id="mp-title">Продажи на Kaspi, Wildberries и Ozon — в одном месте</span>}
-          lead="Подключите кабинет продавца по API: Melior загрузит заказы, посчитает выручку, отмены и возвраты, найдёт слабые товары и подскажет, что сделать на этой неделе."
+          title={<span id="mp-title">Kaspi, Wildberries и Ozon в одном месте</span>}
+          lead="Подключите кабинет продавца — увидите выручку, отмены и слабые товары."
         />
 
         <Reveal>
@@ -198,24 +198,15 @@ export default function Marketplaces() {
                 </form>
 
                 <aside className="mp-side">
-                  <h4>Как это работает</h4>
-                  <ol>
-                    <li>Ключ уходит по HTTPS на сервер Melior и используется только для этой загрузки.</li>
-                    <li>Сервер запрашивает заказы у маркетплейса и приводит их к общему формату.</li>
-                    <li>Ключ нигде не сохраняется: ни на сервере, ни в браузере.</li>
-                  </ol>
                   <div className="mp-safe">
                     <Icon name="check" size={16} />
-                    <span>Создавайте ключ с правами «только чтение» — Melior ничего не меняет в кабинете.</span>
+                    <span>Ключ не сохраняется. Используйте ключ «только чтение».</span>
                   </div>
                   {provider === 'kaspi' && (
-                    <p className="muted small">
-                      Kaspi может не принимать запросы с серверов за пределами Казахстана. Если увидите ошибку 403 — функцию нужно перенести на
-                      казахстанский хостинг.
-                    </p>
+                    <p className="muted small">При ошибке 403 нужен сервер в Казахстане.</p>
                   )}
-                  {provider === 'wb' && <p className="muted small">Лимит статистики Wildberries — около одного запроса в минуту.</p>}
-                  {provider === 'ozon' && <p className="muted small">Используется метод аналитики Ozon: выручка, заказанные единицы, возвраты и отмены.</p>}
+                  {provider === 'wb' && <p className="muted small">Лимит WB — 1 запрос в минуту.</p>}
+                  {provider === 'ozon' && <p className="muted small">Данные из аналитики Ozon.</p>}
                 </aside>
               </div>
             </motion.div>
@@ -322,7 +313,7 @@ function SalesDashboard({
       <div className="mp-products">
         <div className="card-head">
           <h3>Товары · ABC-анализ</h3>
-          <span className="muted small">A — 80% выручки, B — следующие 15%, C — остальное</span>
+          <span className="muted small">A — 80% выручки</span>
         </div>
         {data.products.length === 0 ? (
           <p className="muted small">Маркетплейс не вернул разбивку по товарам.</p>
@@ -372,7 +363,7 @@ function SalesDashboard({
             <h3>
               <Icon name="spark" size={16} /> Рекомендации ИИ
             </h3>
-            <p className="muted small">В ИИ уходит только агрегированная сводка: суммы, товары, проценты. Данных покупателей там нет.</p>
+            <p className="muted small">Без данных покупателей.</p>
           </div>
           {ai.name !== 'loading' && (
             <button type="button" className="btn btn-primary btn-sm" onClick={askAi}>

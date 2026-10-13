@@ -17,7 +17,7 @@ export default function FinalCTA() {
               Узнайте, где ваш бизнес <br className="br-desk" />
               теряет деньги и время
             </h2>
-            <p>Две минуты на анкету — и у вас план действий на ближайшие 30 дней.</p>
+            <p>Две минуты — и план на 30 дней.</p>
             <div className="cta-actions">
               <a href="#audit" className="btn btn-primary">
                 Проанализировать бизнес <span className="arrow">→</span>

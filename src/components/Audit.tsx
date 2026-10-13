@@ -131,7 +131,7 @@ export default function Audit() {
         <SectionHead
           eyebrow="AI Business Audit"
           title={<span id="audit-title">Первичный анализ бизнеса за пару минут</span>}
-          lead="Ответьте на четыре вопроса — Melior подготовит отчёт: проблемные места, процессы для оптимизации, направления экономии, автоматизации и план на 30 дней."
+          lead="Четыре вопроса — и готовый план на 30 дней."
         />
 
         <AnimatePresence mode="wait">
@@ -243,7 +243,7 @@ export default function Audit() {
                         id="f-details"
                         rows={3}
                         maxLength={DETAILS_MAX}
-                        placeholder="Например: продуктовый магазин у дома, закупаемся у 6 поставщиков, учёт в тетради"
+                        placeholder="Например: магазин у дома, учёт в тетради"
                         value={form.details}
                         onChange={(e) => set('details', e.target.value)}
                         aria-invalid={!!errors.details}
@@ -260,7 +260,7 @@ export default function Audit() {
 
                   <div className="audit-submit">
                     <p className="muted small">
-                      Не вводите персональные данные клиентов. Ответы используются только для подготовки отчёта.
+                      Без персональных данных клиентов.
                     </p>
                     <button type="submit" className="btn btn-primary">
                       Начать анализ <span className="arrow">→</span>

@@ -11,7 +11,7 @@ export default function Footer() {
             <Logo />
             <span>Melior</span>
           </a>
-          <p className="muted small">Аналитика и оптимизация процессов для малого и среднего бизнеса.</p>
+          <p className="muted small">Аналитика для малого бизнеса.</p>
         </div>
         <nav aria-label="Навигация в подвале" className="footer-col">
           <span className="footer-h">Разделы</span>

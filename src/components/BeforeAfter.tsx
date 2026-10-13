@@ -35,7 +35,6 @@ export default function BeforeAfter() {
         <SectionHead
           eyebrow="До и после"
           title={<span id="ba-title">Как меняется работа бизнеса</span>}
-          lead="Тот же бизнес и те же люди — но данные собраны в одном месте, а рутина больше не съедает рабочий день."
         />
         <Reveal>
           <div className="ba-wrap panel">
@@ -104,8 +103,7 @@ export default function BeforeAfter() {
                   </li>
                 ))}
                 <li className="ba-disclaimer">
-                  Эффект зависит от того, какие рекомендации будут внедрены. Мы не обещаем фиксированную экономию без анализа реальных
-                  данных бизнеса.
+                  Эффект зависит от внедрения. Экономию не обещаем.
                 </li>
               </ul>
             </div>

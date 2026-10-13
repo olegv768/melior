@@ -75,7 +75,7 @@ export default function Industries() {
         <SectionHead
           eyebrow="Для бизнеса"
           title={<span id="ind-title">Понимает специфику вашей отрасли</span>}
-          lead="У кафе и салона разные потери. Melior смотрит на те показатели, которые важны именно для вашего типа бизнеса."
+          lead="У кафе и салона разные потери."
         />
         <Reveal>
           <div className="ind-wrap">
@@ -112,7 +112,7 @@ export default function Industries() {
                   <div className="ind-col">
                     <h3>Что анализируем</h3>
                     <ul>
-                      {ind.analyse.map((a) => (
+                      {ind.analyse.slice(0, 3).map((a) => (
                         <li key={a}>
                           <Icon name="check" size={16} /> {a}
                         </li>
@@ -138,7 +138,6 @@ export default function Industries() {
                         </span>
                       ))}
                     </div>
-                    <p className="muted small">Можно начать и без файлов — с ответов на вопросы анкеты.</p>
                     <button type="button" className="btn btn-primary btn-sm" onClick={prefill}>
                       Проанализировать: {ind.name.toLowerCase()} <span className="arrow">→</span>
                     </button>
