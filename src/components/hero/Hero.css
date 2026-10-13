@@ -215,16 +215,6 @@
   text-transform: uppercase;
   color: var(--warn);
 }
-.hero-hint {
-  position: absolute;
-  right: calc(var(--gutter) + 4px);
-  bottom: 6%;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-  pointer-events: none;
-}
 
 @media (max-width: 1020px) {
   .hero-grid {
@@ -271,7 +261,4 @@
     width: auto;
     bottom: 12px;
   }
-  .hero-hint {
-    display: none;
   }
-}

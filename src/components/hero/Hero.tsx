@@ -176,9 +176,6 @@ export default function Hero() {
             )}
           </AnimatePresence>
 
-          <div className="hero-hint mono" aria-hidden="true">
-            {compact ? 'Нажмите на узел' : 'Наведите на узел системы'}
-          </div>
         </motion.div>
       </div>
     </section>
