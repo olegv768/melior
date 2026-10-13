@@ -134,7 +134,7 @@ const itemSchema = {
   required: ['title', 'detail'],
 }
 
-export const GEMINI_RESPONSE_SCHEMA = {
+export const RESPONSE_SCHEMA = {
   type: 'OBJECT',
   properties: {
     summary: { type: 'STRING' },

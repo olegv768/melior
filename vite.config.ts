@@ -52,7 +52,7 @@ function localApi(): Plugin {
 export default defineConfig(({ mode }) => {
   // server-only secrets (no VITE_ prefix) for the local API handler — never bundled into the client
   const env = loadEnv(mode, process.cwd(), '')
-  for (const k of ['GEMINI_API_KEY', 'GEMINI_MODEL']) {
+  for (const k of ['GROQ_API_KEY', 'GROQ_MODEL']) {
     if (env[k] && !process.env[k]) process.env[k] = env[k]
   }
   return {

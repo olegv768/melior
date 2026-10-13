@@ -1,10 +1,10 @@
 // Vercel Serverless Function: POST /api/marketplace
 //   { action: 'fetch', provider, credentials, days }  → normalised sales data from Kaspi / Wildberries / Ozon
-//   { action: 'insights', summary }                    → AI recommendations (Gemini) for an aggregated summary
+//   { action: 'insights', summary }                    → AI recommendations (Groq) for an aggregated summary
 import { INSIGHTS_SCHEMA, insightsPrompt, validateFetch } from '../shared/marketplace.js'
 import type { Recommendation } from '../shared/marketplace.js'
 import { fetchSales, MarketplaceError } from '../server/marketplaces.js'
-import { GeminiError, clientIp, generateJson, json, makeRateLimiter } from '../server/gemini.js'
+import { AiError, clientIp, generateJson, json, makeRateLimiter } from '../server/ai.js'
 
 const limitFetch = makeRateLimiter(6, 10 * 60 * 1000)
 const limitAi = makeRateLimiter(8, 10 * 60 * 1000)
@@ -56,7 +56,7 @@ export async function POST(request: Request): Promise<Response> {
       if (!recs.length) return json({ error: 'ai_failed' }, 502)
       return json({ recommendations: recs })
     } catch (err) {
-      const code = err instanceof GeminiError ? err.code : 'ai_failed'
+      const code = err instanceof AiError ? err.code : 'ai_failed'
       return json({ error: code }, code === 'not_configured' ? 503 : 502)
     }
   }

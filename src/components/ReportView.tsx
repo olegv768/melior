@@ -41,7 +41,7 @@ export default function ReportView({ report, onReset, preview }: Props) {
         <div className="report-meta">
           {report.mode === 'ai' ? (
             <span className="chip chip-accent">
-              <Icon name="spark" size={13} /> ИИ-анализ · Gemini
+              <Icon name="spark" size={13} /> ИИ-анализ
             </span>
           ) : (
             <span className="chip chip-demo">
