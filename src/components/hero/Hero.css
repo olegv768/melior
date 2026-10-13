@@ -144,7 +144,6 @@
   background: rgb(var(--surface-rgb) / 0.75);
   border: 1px solid var(--line-2);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   white-space: nowrap;
   transform: translateY(-50%);
   transition: color 0.2s, border-color 0.2s, background 0.2s;
@@ -180,7 +179,6 @@
   border-radius: 16px;
   background: rgb(var(--surface-rgb) / 0.9);
   backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   z-index: 3;
   pointer-events: none;
 }

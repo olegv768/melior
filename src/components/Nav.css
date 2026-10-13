@@ -20,7 +20,6 @@
   /* always frosted: everything scrolling underneath is blurred */
   background: rgb(var(--bg-rgb) / 0.45);
   backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
   transition: background 0.3s, border-color 0.3s;
   border-bottom: 1px solid rgba(170, 190, 255, 0.06);
 }
@@ -136,7 +135,6 @@
     padding: 12px var(--gutter) 24px;
     background: rgb(var(--bg-rgb) / 0.97);
     backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--line);
     min-height: calc(100dvh - 68px);
   }
