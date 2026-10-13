@@ -17,13 +17,15 @@
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 50;
-  transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
-  border-bottom: 1px solid transparent;
+  /* always frosted: everything scrolling underneath is blurred */
+  background: rgb(var(--bg-rgb) / 0.45);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  transition: background 0.3s, border-color 0.3s;
+  border-bottom: 1px solid rgba(170, 190, 255, 0.06);
 }
 .nav.is-scrolled {
-  background: rgb(var(--bg-rgb) / 0.72);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  background: rgb(var(--bg-rgb) / 0.55);
   border-bottom-color: var(--line);
 }
 .nav-inner {
