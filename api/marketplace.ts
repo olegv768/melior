@@ -7,7 +7,7 @@ import { fetchSales, MarketplaceError } from '../server/marketplaces.js'
 import { AiError, clientIp, generateJson, json, makeRateLimiter } from '../server/ai.js'
 
 const limitFetch = makeRateLimiter(6, 10 * 60 * 1000)
-const limitAi = makeRateLimiter(8, 10 * 60 * 1000)
+const limitAi = makeRateLimiter(30, 10 * 60 * 1000)
 
 export async function POST(request: Request): Promise<Response> {
   let body: Record<string, unknown>
@@ -36,7 +36,7 @@ export async function POST(request: Request): Promise<Response> {
     if (!summary || typeof summary !== 'object' || JSON.stringify(summary).length > 20_000) {
       return json({ error: 'invalid_input' }, 422)
     }
-    if (limitAi(ip)) return json({ error: 'rate_limited' }, 429)
+    if (limitAi(ip)) return json({ error: 'ai_rate_limited' }, 429)
     try {
       const kind = body.kind === 'funnel' ? 'funnel' : 'sales'
       const out = (await generateJson(insightsPrompt(kind, summary), INSIGHTS_SCHEMA)) as { recommendations?: unknown }

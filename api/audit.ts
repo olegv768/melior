@@ -3,7 +3,7 @@
 import { RESPONSE_SCHEMA, buildPrompt, reportFromModel, validateInput } from '../shared/audit.js'
 import { AiError, clientIp, aiConfigured, aiModel, generateJson, json, makeRateLimiter } from '../server/ai.js'
 
-const rateLimited = makeRateLimiter(8, 10 * 60 * 1000)
+const rateLimited = makeRateLimiter(30, 10 * 60 * 1000)
 
 export async function POST(request: Request): Promise<Response> {
   if (!aiConfigured()) return json({ error: 'not_configured' }, 503)

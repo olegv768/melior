@@ -12,6 +12,7 @@ export type MpErrorCode =
   | 'not_configured'
   | 'ai_quota'
   | 'ai_busy'
+  | 'ai_rate_limited'
   | 'ai_failed'
   | 'ai_timeout'
 
@@ -38,6 +39,7 @@ export const MP_ERROR_TEXT: Record<MpErrorCode, string> = {
   not_configured: 'ИИ не подключён — выводы по правилам смотрите выше.',
   ai_quota: 'Исчерпан лимит бесплатных запросов к ИИ. Попробуйте позже.',
   ai_busy: 'ИИ сейчас перегружен. Попробуйте через минуту.',
+  ai_rate_limited: 'Слишком много запросов к ИИ подряд. Подождите пару минут.',
   ai_failed: 'ИИ не смог подготовить рекомендации. Попробуйте ещё раз.',
   ai_timeout: 'ИИ отвечал слишком долго. Попробуйте ещё раз.',
 }
