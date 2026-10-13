@@ -6,11 +6,9 @@ export const SITE = {
 }
 
 export const NAV = [
-  { id: 'product', label: 'Продукт' },
-  { id: 'features', label: 'Возможности' },
+  { id: 'upload', label: 'Таблица' },
   { id: 'marketplaces', label: 'Маркетплейсы' },
-  { id: 'how', label: 'Как это работает' },
-  { id: 'industries', label: 'Для бизнеса' },
+  { id: 'funnel', label: 'Воронка' },
+  { id: 'audit', label: 'Аудит' },
 ] as const
 
-export const PREFILL_EVENT = 'melior:prefill'

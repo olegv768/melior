@@ -38,7 +38,8 @@ export async function POST(request: Request): Promise<Response> {
     }
     if (limitAi(ip)) return json({ error: 'rate_limited' }, 429)
     try {
-      const out = (await generateJson(insightsPrompt(summary as never), INSIGHTS_SCHEMA)) as { recommendations?: unknown }
+      const kind = body.kind === 'funnel' ? 'funnel' : 'sales'
+      const out = (await generateJson(insightsPrompt(kind, summary), INSIGHTS_SCHEMA)) as { recommendations?: unknown }
       const recs = (Array.isArray(out.recommendations) ? out.recommendations : [])
         .slice(0, 6)
         .map((r) => {

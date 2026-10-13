@@ -9,7 +9,6 @@ import SectionHead from './ui/SectionHead'
 import Reveal from './ui/Reveal'
 import Icon from './ui/Icon'
 import ReportView from './ReportView'
-import { PREFILL_EVENT } from '../config'
 import './Audit.css'
 
 type Form = {
@@ -41,20 +40,6 @@ export default function Audit() {
   const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => () => abortRef.current?.abort(), [])
-
-  // «Для бизнеса» → preselect the business type
-  useEffect(() => {
-    const onPrefill = (e: Event) => {
-      const type = (e as CustomEvent<{ businessType: BusinessType }>).detail?.businessType
-      if (!type) return
-      abortRef.current?.abort()
-      setPhase({ name: 'form' })
-      setForm((f) => ({ ...f, businessType: type }))
-      setErrors((er) => ({ ...er, businessType: '' }))
-    }
-    window.addEventListener(PREFILL_EVENT, onPrefill)
-    return () => window.removeEventListener(PREFILL_EVENT, onPrefill)
-  }, [])
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => {
     setForm((f) => ({ ...f, [k]: v }))
@@ -129,8 +114,8 @@ export default function Audit() {
     <section className="section audit" id="audit" aria-labelledby="audit-title">
       <div className="container" ref={topRef}>
         <SectionHead
-          eyebrow="AI Business Audit"
-          title={<span id="audit-title">Первичный анализ бизнеса за пару минут</span>}
+          eyebrow="Без данных"
+          title={<span id="audit-title">Нет таблицы? Быстрый аудит по анкете</span>}
           lead="Четыре вопроса — и готовый план на 30 дней."
         />
 

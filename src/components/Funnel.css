@@ -1,0 +1,229 @@
+.fn-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 14px;
+  align-items: start;
+}
+.fn-input {
+  display: grid;
+  gap: 18px;
+  padding: clamp(18px, 3vw, 26px);
+}
+.fn-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fn-templates .pill {
+  height: 32px;
+  font-size: 13px;
+}
+.fn-stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.fn-stages li {
+  display: grid;
+  grid-template-columns: 22px 1fr 120px 32px;
+  align-items: center;
+  gap: 8px;
+}
+.fn-n {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+.fn-stages input,
+.fn-money input,
+.fn-money select {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 14px;
+  outline: none;
+  min-width: 0;
+}
+.fn-stages input:focus,
+.fn-money input:focus {
+  border-color: rgba(76, 125, 255, 0.7);
+}
+.fn-count {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.fn-count[aria-invalid='true'] {
+  border-color: rgba(255, 107, 122, 0.7) !important;
+}
+.fn-del {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--muted);
+}
+.fn-del:hover:not(:disabled) {
+  color: var(--bad);
+  border-color: rgba(255, 107, 122, 0.4);
+}
+.fn-del:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.fn-err {
+  grid-column: 2 / -1;
+  margin-top: -2px;
+  text-align: right;
+}
+.fn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+}
+.fn-check {
+  justify-content: space-between;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.fn-check label {
+  display: grid;
+  gap: 6px;
+}
+.fn-money {
+  display: flex;
+  gap: 6px;
+}
+.fn-money input {
+  width: 160px;
+}
+.fn-money select {
+  background: var(--surface-2);
+}
+
+.fn-result {
+  padding: clamp(18px, 3vw, 26px);
+  min-height: 320px;
+}
+.fn-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  min-height: 280px;
+  text-align: center;
+}
+.fn-res {
+  display: grid;
+  gap: 22px;
+}
+.fn-res .mp-ai {
+  padding: 18px 0 0;
+  border-top: 1px solid var(--line);
+}
+.fn-bars {
+  display: grid;
+  gap: 6px;
+}
+.fn-bar-row {
+  display: grid;
+  gap: 6px;
+}
+.fn-conv {
+  font-size: 12px;
+  color: var(--text-2);
+  padding-left: 2px;
+}
+.fn-conv.is-worst {
+  color: var(--bad);
+  font-weight: 500;
+}
+.fn-bar-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+}
+.fn-bar-val {
+  font-weight: 500;
+}
+.fn-track {
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+.fn-track span {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #3d6bf0, #9b8cff);
+}
+.fn-track span.is-worst {
+  background: linear-gradient(90deg, #d84f63, #ff8a96);
+}
+.fn-kpis {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.fn-kpis > div {
+  display: grid;
+  gap: 4px;
+}
+.fn-kpis b {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+}
+.fn-kpis .fn-worst {
+  font-family: var(--font);
+  font-size: 14.5px;
+  color: var(--bad);
+  padding-top: 4px;
+}
+.fn-whatif {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(76, 125, 255, 0.28);
+  background: var(--accent-soft);
+  font-size: 14px;
+}
+.fn-whatif input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.fn-whatif b {
+  color: #c4d2ff;
+}
+
+@media (max-width: 1020px) {
+  .fn-wrap {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .fn-stages li {
+    grid-template-columns: 18px 1fr 92px 32px;
+  }
+  .fn-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+  .fn-kpis > div:nth-child(2) {
+    grid-column: span 2;
+    order: 3;
+  }
+  .fn-money input {
+    width: 130px;
+  }
+}

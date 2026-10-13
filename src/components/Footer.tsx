@@ -20,8 +20,7 @@ export default function Footer() {
               {n.label}
             </a>
           ))}
-          <a href="#audit">AI Business Audit</a>
-        </nav>
+                  </nav>
         <div className="footer-col">
           <span className="footer-h">Контакты</span>
           <a href={SITE.repo} target="_blank" rel="noreferrer">

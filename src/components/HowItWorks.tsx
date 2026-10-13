@@ -5,26 +5,10 @@ import Reveal from './ui/Reveal'
 import './Sections.css'
 
 const STEPS = [
-  {
-    title: 'Данные',
-    text: 'Анкета или готовые выгрузки.',
-    tags: ['Excel / CSV', 'Касса', 'Выписка банка', 'Анкета'],
-  },
-  {
-    title: 'Модель процессов',
-    text: 'Связываем продажи, расходы и остатки.',
-    tags: ['Продажи', 'Расходы', 'Остатки', 'Смены'],
-  },
-  {
-    title: 'Поиск потерь',
-    text: 'Перерасход, простои, залежи товара.',
-    tags: ['Аномалии', 'Узкие места', 'Причины'],
-  },
-  {
-    title: 'План действий',
-    text: 'Приоритеты и план на 30 дней.',
-    tags: ['Приоритеты', 'План на 30 дней', 'Контроль эффекта'],
-  },
+  { title: 'Загрузите', text: 'Excel, CSV или ключ маркетплейса.', tags: ['xlsx', 'csv', 'Kaspi', 'WB', 'Ozon'] },
+  { title: 'Проверьте колонки', text: 'Дату, товар и сумму находим сами.', tags: ['Дата', 'Товар', 'Сумма'] },
+  { title: 'Получите анализ', text: 'Выручка, маржа, ABC, отмены, пики.', tags: ['ABC', 'Маржа', 'Клиенты'] },
+  { title: 'Действуйте', text: 'Конкретные шаги от ИИ по вашим цифрам.', tags: ['Gemini', 'Приоритеты'] },
 ]
 
 export default function HowItWorks() {
@@ -37,8 +21,8 @@ export default function HowItWorks() {
       <div className="container">
         <SectionHead
           eyebrow="Как это работает"
-          title={<span id="how-title">От данных к рекомендациям</span>}
-          lead="Без новой учётной системы."
+          title={<span id="how-title">Четыре шага</span>}
+          lead="Без регистрации и интеграций."
         />
         <div className="how-wrap" ref={ref}>
           <div className="how-line" aria-hidden="true">

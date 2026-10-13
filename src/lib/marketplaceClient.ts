@@ -34,7 +34,7 @@ export const MP_ERROR_TEXT: Record<MpErrorCode, string> = {
   network: 'Нет соединения с сервером. Проверьте интернет.',
   no_server: 'Подключение API работает только на развёрнутом сайте (Vercel) или при запуске npm run dev.',
   invalid_input: 'Проверьте заполненные поля.',
-  not_configured: 'ИИ на этом сайте не подключён. Выводы по правилам — в блоке «Что мы заметили» выше.',
+  not_configured: 'ИИ не подключён — выводы по правилам смотрите выше.',
   ai_quota: 'Исчерпан лимит бесплатных запросов к ИИ. Попробуйте позже.',
   ai_failed: 'ИИ не смог подготовить рекомендации. Попробуйте ещё раз.',
   ai_timeout: 'ИИ отвечал слишком долго. Попробуйте ещё раз.',
@@ -67,7 +67,7 @@ export async function fetchMarketplace(provider: ProviderId, credentials: Creden
   return data.data as SalesData
 }
 
-export async function fetchInsights(summary: unknown, signal?: AbortSignal) {
-  const data = await post({ action: 'insights', summary }, signal)
+export async function fetchInsights(summary: unknown, kind: 'sales' | 'funnel' = 'sales', signal?: AbortSignal) {
+  const data = await post({ action: 'insights', kind, summary }, signal)
   return data.recommendations as Recommendation[]
 }

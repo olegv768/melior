@@ -35,11 +35,33 @@ export const PERIODS = [7, 14, 30] as const
 export type PeriodDays = (typeof PERIODS)[number]
 
 export type DayRow = { date: string; revenue: number; orders: number; units: number }
-export type ProductRow = { id: string; name: string; revenue: number; units: number; returns: number; cancels: number }
+export type ProductRow = {
+  id: string
+  name: string
+  revenue: number
+  units: number
+  returns: number
+  cancels: number
+  /** total cost of goods sold, when the source has it */
+  cost?: number
+}
+
+/** Where the data came from: a marketplace API or a user's own spreadsheet. */
+export type SourceId = ProviderId | 'file'
+
+export type SalesExtras = {
+  hasCost: boolean
+  customers?: { total: number; repeat: number; repeatRevenue: number }
+  /** revenue by hour of day (0–23), when timestamps include time */
+  hours?: number[]
+  categories?: { name: string; revenue: number }[]
+}
 
 export type SalesData = {
-  provider: ProviderId
-  source: 'api' | 'demo'
+  provider: SourceId
+  source: 'api' | 'demo' | 'file'
+  fileName?: string
+  extras?: SalesExtras
   currency: string
   from: string
   to: string
@@ -53,6 +75,10 @@ export type Credentials = Record<string, string>
 
 export function providerOf(id: ProviderId) {
   return PROVIDERS.find((p) => p.id === id)!
+}
+
+export function sourceName(d: Pick<SalesData, 'provider' | 'fileName'>) {
+  return d.provider === 'file' ? d.fileName || 'Ваша таблица' : providerOf(d.provider).name
 }
 
 export function validateFetch(raw: unknown):
@@ -81,6 +107,8 @@ export function validateFetch(raw: unknown):
 export type Finding = { level: 'bad' | 'warn' | 'good'; title: string; detail: string }
 
 export type Analysis = {
+  margin: { cost: number; pct: number; low: (ProductRow & { pct: number })[] } | null
+  peakHours: [number, number] | null
   avgCheck: number
   cancelRate: number
   returnRate: number
@@ -178,14 +206,74 @@ export function analyse(d: SalesData): Analysis {
       title: `Самый сильный день — ${bestWeekday}`,
       detail: 'Запускайте акции и пополняйте остатки так, чтобы товар был в наличии к этому дню.',
     })
-  return { avgCheck, cancelRate, returnRate, trendPct, abc, topShare, bestWeekday, findings }
+  // gross margin, when cost is known
+  let margin: Analysis['margin'] = null
+  if (d.extras?.hasCost) {
+    const cost = d.products.reduce((s, p) => s + (p.cost ?? 0), 0)
+    const pct = t.revenue > 0 ? ((t.revenue - cost) / t.revenue) * 100 : 0
+    const low = d.products
+      .filter((p) => p.cost !== undefined && p.revenue > 0)
+      .map((p) => ({ ...p, pct: ((p.revenue - (p.cost ?? 0)) / p.revenue) * 100 }))
+      .filter((p) => p.pct < 15)
+      .sort((x, y) => x.pct - y.pct)
+    margin = { cost, pct, low }
+    const negative = low.filter((p) => p.pct < 0)
+    if (negative.length)
+      findings.unshift({
+        level: 'bad',
+        title: `${negative.length} ${plural(negative.length, 'товар продаётся', 'товара продаются', 'товаров продаются')} в минус`,
+        detail: `Например, «${negative[0].name}»: маржа ${negative[0].pct.toFixed(0)}%. Поднимите цену или найдите поставщика дешевле.`,
+      })
+    else if (low.length)
+      findings.unshift({
+        level: 'warn',
+        title: `Низкая маржа у ${low.length} ${plural(low.length, 'товара', 'товаров', 'товаров')}`,
+        detail: `«${low[0].name}» — ${low[0].pct.toFixed(0)}% маржи. Проверьте цену и закупку.`,
+      })
+  }
+
+  const c = d.extras?.customers
+  if (c && c.total >= 10) {
+    const share = c.repeat / c.total
+    findings.push({
+      level: share < 0.15 ? 'warn' : 'good',
+      title: `Повторно покупают ${(share * 100).toFixed(0)}% клиентов`,
+      detail:
+        share < 0.15
+          ? 'Мало возвратов клиентов: напоминайте о себе после покупки и давайте повод вернуться.'
+          : `Постоянные клиенты дают ${((c.repeatRevenue / (t.revenue || 1)) * 100).toFixed(0)}% выручки — берегите их.`,
+    })
+  }
+
+  let peakHours: Analysis['peakHours'] = null
+  const h = d.extras?.hours
+  if (h && h.some((v) => v > 0)) {
+    let best = 0
+    for (let i = 0; i < 24; i++) if (h[i] + h[(i + 1) % 24] > h[best] + h[(best + 1) % 24]) best = i
+    peakHours = [best, (best + 2) % 24]
+    findings.push({
+      level: 'good',
+      title: `Пик продаж — ${best}:00–${(best + 2) % 24}:00`,
+      detail: 'В эти часы нужно больше людей на кассе и ответах клиентам.',
+    })
+  }
+
+  return { margin, peakHours, avgCheck, cancelRate, returnRate, trendPct, abc, topShare, bestWeekday, findings }
+}
+
+function plural(n: number, one: string, few: string, many: string) {
+  const m10 = n % 10
+  const m100 = n % 100
+  if (m10 === 1 && m100 !== 11) return one
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few
+  return many
 }
 
 /** Compact, personal-data-free summary for the AI prompt. */
 export function summaryForAi(d: SalesData, a: Analysis) {
   const top = [...d.products].sort((x, y) => y.revenue - x.revenue).slice(0, 10)
   return {
-    marketplace: providerOf(d.provider).name,
+    source: sourceName(d),
     currency: d.currency,
     period: `${d.from} — ${d.to}`,
     totals: d.totals,
@@ -195,17 +283,66 @@ export function summaryForAi(d: SalesData, a: Analysis) {
     trendPct: +a.trendPct.toFixed(1),
     top3SharePct: +(a.topShare * 100).toFixed(0),
     abcCounts: { a: a.abc.a.length, b: a.abc.b.length, c: a.abc.c.length },
-    topProducts: top.map((p) => ({ name: p.name.slice(0, 80), revenue: Math.round(p.revenue), units: p.units, returns: p.returns, cancels: p.cancels })),
+    marginPct: a.margin ? +a.margin.pct.toFixed(1) : undefined,
+    repeatCustomersPct: d.extras?.customers?.total ? +((d.extras.customers.repeat / d.extras.customers.total) * 100).toFixed(0) : undefined,
+    peakHours: a.peakHours ? `${a.peakHours[0]}:00–${a.peakHours[1]}:00` : undefined,
+    categories: d.extras?.categories?.slice(0, 8).map((c) => ({ name: c.name.slice(0, 60), revenue: Math.round(c.revenue) })),
+    topProducts: top.map((p) => ({
+      name: p.name.slice(0, 80),
+      revenue: Math.round(p.revenue),
+      units: p.units,
+      returns: p.returns,
+      cancels: p.cancels,
+      marginPct: p.cost !== undefined && p.revenue > 0 ? +(((p.revenue - p.cost) / p.revenue) * 100).toFixed(0) : undefined,
+    })),
     daily: d.days.map((x) => ({ date: x.date, revenue: Math.round(x.revenue), orders: x.orders })),
   }
 }
 
-export function insightsPrompt(summary: ReturnType<typeof summaryForAi>) {
-  return `Ты аналитик продаж на маркетплейсах (Kaspi, Wildberries, Ozon) для малого бизнеса в Казахстане.
+export type FunnelSummary = {
+  stages: { name: string; count: number }[]
+  avgCheck?: number
+  currency: string
+}
+
+export function insightsPrompt(kind: 'sales' | 'funnel', summary: unknown) {
+  if (kind === 'funnel')
+    return `Ты аналитик воронки продаж для малого бизнеса в Казахстане.
+По данным воронки (этапы и число людей на каждом) дай 5 конкретных шагов, как поднять конверсию самого слабого перехода и выручку.
+Опирайся только на цифры, не выдумывай данные. По-русски, коротко, без общих фраз, без обещаний гарантированного результата.
+
+Воронка (JSON): ${JSON.stringify(summary)}`
+  return `Ты аналитик продаж малого бизнеса в Казахстане (магазины, кафе, маркетплейсы Kaspi, Wildberries, Ozon).
 По сводке продаж дай 5 конкретных рекомендаций: что сделать продавцу на этой неделе, чтобы увеличить выручку и снизить потери.
 Опирайся только на цифры из сводки, не выдумывай данные. Пиши по-русски, коротко, без общих фраз. Не обещай гарантированный результат.
 
 Сводка (JSON): ${JSON.stringify(summary)}`
+}
+
+export function analyseFunnel(stages: { name: string; count: number }[], avgCheck: number) {
+  const steps = stages.slice(1).map((st, i) => {
+    const prev = stages[i].count
+    return { from: stages[i].name, to: st.name, conv: prev > 0 ? st.count / prev : 0, lost: Math.max(0, prev - st.count) }
+  })
+  const overall = stages[0]?.count ? stages[stages.length - 1].count / stages[0].count : 0
+  let worst = 0
+  steps.forEach((s, i) => {
+    if (s.conv < steps[worst].conv) worst = i
+  })
+  return { steps, overall, worst, lostRevenue: stages.length ? (stages[0].count - stages[stages.length - 1].count) * avgCheck : 0 }
+}
+
+/** Extra customers at the end of the funnel if one step's conversion grows by `pp` percentage points. */
+export function funnelWhatIf(stages: { count: number }[], step: number, pp: number) {
+  if (stages.length < 2) return 0
+  let count = stages[0].count
+  for (let i = 1; i < stages.length; i++) {
+    const prev = stages[i - 1].count
+    let conv = prev > 0 ? stages[i].count / prev : 0
+    if (i - 1 === step) conv = Math.min(1, conv + pp / 100)
+    count = count * conv
+  }
+  return Math.max(0, count - stages[stages.length - 1].count)
 }
 
 export const INSIGHTS_SCHEMA = {

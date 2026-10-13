@@ -62,11 +62,11 @@ export default function Hero() {
       <div className="container hero-grid">
         <div className="hero-copy">
           <motion.div {...fade(0.05)}>
-            <a href="#audit" className="hero-badge">
+            <a href="#upload" className="hero-badge">
               <span className="chip chip-accent">
-                <span className="dot" /> AI Business Audit
+                <span className="dot" /> Excel · Kaspi · WB · Ozon
               </span>
-              <span>Аудит бизнеса онлайн</span>
+              <span>Анализ по вашим данным</span>
               <span className="arrow" aria-hidden="true">
                 →
               </span>
@@ -83,23 +83,23 @@ export default function Hero() {
           </motion.p>
 
           <motion.div className="hero-actions" {...fade(0.32)}>
-            <a href="#audit" className="btn btn-primary">
-              Проанализировать бизнес <span className="arrow">→</span>
+            <a href="#upload" className="btn btn-primary">
+              Загрузить таблицу <span className="arrow">→</span>
             </a>
-            <a href="#features" className="btn btn-ghost">
-              Посмотреть возможности
+            <a href="#funnel" className="btn btn-ghost">
+              Анализ воронки
             </a>
           </motion.div>
 
           <motion.ul className="hero-facts" {...fade(0.42)}>
             <li>
-              <span className="mono">01</span>Таблица, касса или анкета
+              <span className="mono">01</span>Excel и CSV: выручка, маржа, ABC
             </li>
             <li>
-              <span className="mono">02</span>Без интеграций
+              <span className="mono">02</span>Kaspi, Wildberries, Ozon по API
             </li>
             <li>
-              <span className="mono">03</span>План на 30 дней
+              <span className="mono">03</span>Воронка: где теряются клиенты
             </li>
           </motion.ul>
         </div>

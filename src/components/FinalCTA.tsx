@@ -17,13 +17,13 @@ export default function FinalCTA() {
               Узнайте, где ваш бизнес <br className="br-desk" />
               теряет деньги и время
             </h2>
-            <p>Две минуты — и план на 30 дней.</p>
+            <p>Загрузите таблицу — анализ займёт секунды.</p>
             <div className="cta-actions">
-              <a href="#audit" className="btn btn-primary">
-                Проанализировать бизнес <span className="arrow">→</span>
+              <a href="#upload" className="btn btn-primary">
+                Загрузить таблицу <span className="arrow">→</span>
               </a>
-              <a href="#features" className="btn btn-ghost">
-                Посмотреть возможности
+              <a href="#funnel" className="btn btn-ghost">
+                Анализ воронки
               </a>
             </div>
           </div>

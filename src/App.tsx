@@ -1,13 +1,10 @@
 import Nav from './components/Nav'
 import Hero from './components/hero/Hero'
-import Analytics from './components/Analytics'
-import Audit from './components/Audit'
+import Upload from './components/Upload'
 import Marketplaces from './components/Marketplaces'
-import Capabilities from './components/Capabilities'
+import Funnel from './components/Funnel'
+import Audit from './components/Audit'
 import HowItWorks from './components/HowItWorks'
-import BeforeAfter from './components/BeforeAfter'
-import Industries from './components/Industries'
-import SampleReport from './components/SampleReport'
 import FAQ from './components/FAQ'
 import FinalCTA from './components/FinalCTA'
 import Footer from './components/Footer'
@@ -22,14 +19,11 @@ export default function App() {
       <Nav />
       <main id="main">
         <Hero />
-        <Analytics />
-        <Audit />
+        <Upload />
         <Marketplaces />
-        <Capabilities />
+        <Funnel />
+        <Audit />
         <HowItWorks />
-        <BeforeAfter />
-        <Industries />
-        <SampleReport />
         <FAQ />
         <FinalCTA />
       </main>

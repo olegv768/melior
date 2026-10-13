@@ -61,8 +61,8 @@ export default function Nav() {
         </nav>
 
         <div className="nav-actions">
-          <a href="#audit" className="btn btn-primary btn-sm nav-cta">
-            Начать анализ
+          <a href="#upload" className="btn btn-primary btn-sm nav-cta">
+            Загрузить данные
           </a>
           <button
             className="nav-burger"
@@ -98,8 +98,8 @@ export default function Nav() {
                 {item.label}
               </motion.a>
             ))}
-            <a href="#audit" className="btn btn-primary" onClick={() => setOpen(false)}>
-              Начать анализ
+            <a href="#upload" className="btn btn-primary" onClick={() => setOpen(false)}>
+              Загрузить данные
             </a>
           </motion.div>
         )}
