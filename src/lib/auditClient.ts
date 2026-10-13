@@ -49,7 +49,9 @@ export async function runAudit(input: AuditInput, signal?: AbortSignal): Promise
   if (res.ok && data?.report) return data.report
 
   const kind = (data?.error ?? 'ai_failed') as AuditErrorKind
-  throw new AuditError(kind in ERROR_TEXT ? kind : 'ai_failed', data?.fields)
+  const err = new AuditError(kind in ERROR_TEXT ? kind : 'ai_failed', data?.fields)
+  err.message = typeof (data as { info?: unknown } | null)?.info === 'string' ? (data as { info: string }).info : `HTTP ${res.status}`
+  throw err
 }
 
 export function reportToText(r: AuditReport) {

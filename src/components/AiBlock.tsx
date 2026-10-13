@@ -20,7 +20,8 @@ export default function AiBlock({ kind, getSummary }: { kind: 'sales' | 'funnel'
       setState({ name: 'done', recs: await fetchInsights(getSummary(), kind) })
     } catch (err) {
       const code = err instanceof MpError ? err.code : 'ai_failed'
-      setState({ name: 'error', message: MP_ERROR_TEXT[code], soft: code === 'not_configured' || code === 'no_server' })
+      const info = err instanceof MpError && err.info ? ` (${err.info})` : ''
+      setState({ name: 'error', message: MP_ERROR_TEXT[code] + info, soft: code === 'not_configured' || code === 'no_server' })
     }
   }
 

@@ -55,12 +55,14 @@ export async function POST(request: Request): Promise<Response> {
         .filter((r) => r.title && r.detail)
       if (!recs.length) {
         console.error('AI insights: no recommendations in', JSON.stringify(out).slice(0, 300))
-        return json({ error: 'ai_failed' }, 502)
+        return json({ error: 'ai_failed', info: `нет рекомендаций в ответе: ${JSON.stringify(out).slice(0, 100)}` }, 502)
       }
       return json({ recommendations: recs })
     } catch (err) {
       const code = err instanceof AiError ? err.code : 'ai_failed'
-      return json({ error: code }, code === 'not_configured' ? 503 : 502)
+      const info = err instanceof AiError ? err.info : err instanceof Error ? err.message.slice(0, 120) : undefined
+      if (!(err instanceof AiError)) console.error('Insights failed', err)
+      return json({ error: code, info }, code === 'not_configured' ? 503 : 502)
     }
   }
 

@@ -20,10 +20,12 @@ export type MpErrorCode =
 export class MpError extends Error {
   code: MpErrorCode
   fields?: Record<string, string>
-  constructor(code: MpErrorCode, fields?: Record<string, string>) {
+  info?: string
+  constructor(code: MpErrorCode, fields?: Record<string, string>, info?: string) {
     super(code)
     this.code = code
     this.fields = fields
+    this.info = info
   }
 }
 
@@ -63,7 +65,8 @@ async function post(body: unknown, signal?: AbortSignal) {
   const data = (await res.json().catch(() => null)) as Record<string, unknown> | null
   if (!res.ok) {
     const code = (data?.error as MpErrorCode) ?? 'upstream'
-    throw new MpError(code in MP_ERROR_TEXT ? code : 'upstream', data?.fields as Record<string, string> | undefined)
+    const info = typeof data?.info === 'string' ? data.info : !data ? `HTTP ${res.status}` : undefined
+    throw new MpError(code in MP_ERROR_TEXT ? code : 'upstream', data?.fields as Record<string, string> | undefined, info)
   }
   return data ?? {}
 }

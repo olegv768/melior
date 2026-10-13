@@ -7,14 +7,20 @@ const TOTAL_MS = 55_000 // Vercel function limit is 60 s (vercel.json)
 
 export class AiError extends Error {
   code: 'not_configured' | 'ai_key' | 'ai_quota' | 'ai_busy' | 'ai_failed' | 'ai_timeout'
-  constructor(code: AiError['code']) {
+  /** short, secret-free diagnostic shown to the user, e.g. "openai/gpt-oss-120b: 400 json_validate_failed" */
+  info?: string
+  constructor(code: AiError['code'], info?: string) {
     super(code)
     this.code = code
+    this.info = info
   }
 }
 
+// pasted keys often carry a trailing space/newline or quotes, which makes the Authorization header invalid
+const groqKey = () => (process.env.GROQ_API_KEY ?? '').trim().replace(/^["']|["']$/g, '')
+
 export function aiConfigured() {
-  return Boolean(process.env.GROQ_API_KEY)
+  return Boolean(groqKey())
 }
 
 export function aiModel() {
@@ -23,10 +29,11 @@ export function aiModel() {
 
 /** Returns parsed JSON that follows `schema`; tries the main model, then a smaller one. */
 export async function generateJson(prompt: string, schema: unknown): Promise<unknown> {
-  const key = process.env.GROQ_API_KEY
+  const key = groqKey()
   if (!key) throw new AiError('not_configured')
   const deadline = Date.now() + TOTAL_MS
   const statuses: number[] = []
+  const notes: string[] = []
 
   // main model twice (JSON mode occasionally fails validation), then the smaller one
   for (const model of [MODEL(), MODEL(), FALLBACK_MODEL]) {
@@ -52,8 +59,11 @@ export async function generateJson(prompt: string, schema: unknown): Promise<unk
       })
       if (!res.ok) {
         statuses.push(res.status)
-        console.error('Groq error', model, res.status, (await res.text().catch(() => '')).slice(0, 200))
-        if (res.status === 401 || res.status === 403) throw new AiError('ai_key')
+        const body = (await res.text().catch(() => '')).slice(0, 300)
+        console.error('Groq error', model, res.status, body)
+        const code = body.match(/"code"\s*:\s*"([^"]+)"/)?.[1] ?? body.match(/"message"\s*:\s*"([^"]{0,80})/)?.[1] ?? ''
+        notes.push(`${model}: ${res.status} ${code}`.trim())
+        if (res.status === 401 || res.status === 403) throw new AiError('ai_key', notes.join('; '))
         // 400 = json_validate_failed / bad model name, 429 = limit, 5xx = overload → try again / next model
         continue
       }
@@ -63,32 +73,35 @@ export async function generateJson(prompt: string, schema: unknown): Promise<unk
         return JSON.parse(text)
       } catch {
         statuses.push(0)
+        notes.push(`${model}: ответ не JSON`)
         console.error('Groq returned non-JSON', model, text.slice(0, 200))
       }
     } catch (err) {
       if (err instanceof AiError) throw err
       statuses.push(err instanceof Error && err.name === 'AbortError' ? -1 : 0)
+      notes.push(`${model}: ${err instanceof Error ? err.name + ' ' + err.message.slice(0, 60) : 'network'}`)
       console.error('Groq call failed', model, err instanceof Error ? err.message : err)
     } finally {
       clearTimeout(timer)
     }
   }
 
-  if (statuses.length && statuses.every((s) => s === 429)) throw new AiError('ai_quota')
-  if (statuses.some((s) => s >= 500)) throw new AiError('ai_busy')
-  if (statuses.some((s) => s === -1)) throw new AiError('ai_timeout')
-  throw new AiError('ai_failed')
+  const info = notes.join('; ')
+  if (statuses.length && statuses.every((s) => s === 429)) throw new AiError('ai_quota', info)
+  if (statuses.some((s) => s >= 500)) throw new AiError('ai_busy', info)
+  if (statuses.some((s) => s === -1)) throw new AiError('ai_timeout', info)
+  throw new AiError('ai_failed', info)
 }
 
 /** Tiny live request to check the key from the deployed site (GET /api/audit?check=1). */
-export async function aiCheck(): Promise<{ ok: boolean; status: number }> {
-  const key = process.env.GROQ_API_KEY
+export async function aiCheck(): Promise<{ ok: boolean; status: number; error?: string }> {
+  const key = groqKey()
   if (!key) return { ok: false, status: 0 }
   try {
     const res = await fetch('https://api.groq.com/openai/v1/models', { headers: { authorization: `Bearer ${key}` } })
     return { ok: res.ok, status: res.status }
-  } catch {
-    return { ok: false, status: -1 }
+  } catch (err) {
+    return { ok: false, status: -1, error: err instanceof Error ? `${err.name}: ${err.message}`.slice(0, 120) : 'network' }
   }
 }
 

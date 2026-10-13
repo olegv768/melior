@@ -24,7 +24,8 @@ export async function POST(request: Request): Promise<Response> {
   } catch (err) {
     const code = err instanceof AiError ? err.code : 'ai_failed'
     if (!(err instanceof AiError)) console.error('Audit failed', err)
-    return json({ error: code }, code === 'not_configured' ? 503 : 502)
+    const info = err instanceof AiError ? err.info : err instanceof Error ? err.message.slice(0, 120) : undefined
+    return json({ error: code, info }, code === 'not_configured' ? 503 : 502)
   }
 }
 

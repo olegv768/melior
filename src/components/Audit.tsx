@@ -75,7 +75,8 @@ export default function Audit() {
         return
       }
       const kind = err instanceof AuditError ? err.kind : 'ai_failed'
-      setPhase({ name: 'error', message: ERROR_TEXT[kind], input })
+      const info = err instanceof AuditError && err.message !== kind ? ` (${err.message})` : ''
+      setPhase({ name: 'error', message: ERROR_TEXT[kind] + info, input })
     } finally {
       window.clearInterval(timer)
     }
