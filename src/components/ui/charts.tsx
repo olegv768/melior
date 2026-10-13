@@ -139,7 +139,7 @@ export function AreaChart({ series, labels, height = 240, format, ariaLabel }: A
             <g>
               <line x1={x(hover)} x2={x(hover)} y1={pad.t} y2={pad.t + h} stroke="rgba(255,255,255,0.18)" />
               {series.map((s) => (
-                <circle key={s.name} cx={x(hover)} cy={y(s.values[hover])} r={4} fill="#0e1015" stroke={s.color} strokeWidth={2} />
+                <circle key={s.name} cx={x(hover)} cy={y(s.values[hover])} r={4} fill="#131a2f" stroke={s.color} strokeWidth={2} />
               ))}
             </g>
           )}

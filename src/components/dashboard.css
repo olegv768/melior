@@ -198,7 +198,7 @@
   min-width: 150px;
   padding: 8px 10px;
   border-radius: 10px;
-  background: rgba(14, 16, 21, 0.95);
+  background: rgb(var(--surface-rgb) / 0.96);
   border: 1px solid var(--line-2);
   font-size: 12px;
   pointer-events: none;

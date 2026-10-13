@@ -1,14 +1,17 @@
 :root {
-  --bg: #07080b;
-  --bg-2: #0a0b0f;
-  --surface: #0e1015;
-  --surface-2: #13161d;
-  --surface-3: #1a1e27;
-  --line: rgba(255, 255, 255, 0.07);
-  --line-2: rgba(255, 255, 255, 0.12);
-  --text: #eceef3;
-  --text-2: #b4b9c6;
-  --muted: #7d8394;
+  /* deep navy instead of pure black */
+  --bg: #0b0f1e;
+  --bg-rgb: 11 15 30;
+  --bg-2: #0e1326;
+  --surface: #131a2f;
+  --surface-rgb: 19 26 47;
+  --surface-2: #19213b;
+  --surface-3: #232c4a;
+  --line: rgba(170, 190, 255, 0.1);
+  --line-2: rgba(170, 190, 255, 0.17);
+  --text: #eef1f8;
+  --text-2: #bcc3d6;
+  --muted: #8a93ab;
   --accent: #4c7dff;
   --accent-2: #9b8cff;
   --accent-soft: rgba(76, 125, 255, 0.14);
@@ -261,10 +264,10 @@ p {
 /* Surfaces */
 .panel {
   position: relative;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
+  background: linear-gradient(180deg, rgba(150, 170, 255, 0.07), rgba(150, 170, 255, 0.025));
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 30px 80px -40px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 30px 80px -40px rgba(3, 6, 20, 0.9);
 }
 
 .chip {
@@ -321,19 +324,21 @@ p {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60% 50% at 75% 0%, rgba(76, 125, 255, 0.09), transparent 70%),
-    radial-gradient(40% 40% at 0% 30%, rgba(155, 140, 255, 0.05), transparent 70%),
-    var(--bg);
+    radial-gradient(55% 45% at 88% 2%, rgba(76, 125, 255, 0.24), transparent 70%),
+    radial-gradient(42% 40% at 0% 38%, rgba(155, 140, 255, 0.16), transparent 70%),
+    radial-gradient(45% 40% at 100% 78%, rgba(56, 189, 248, 0.11), transparent 70%),
+    radial-gradient(60% 45% at 18% 104%, rgba(99, 102, 241, 0.18), transparent 70%),
+    linear-gradient(180deg, #0d1225 0%, #0a0e1c 100%);
 }
 
 .ambient::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(170, 190, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(170, 190, 255, 0.035) 1px, transparent 1px);
   background-size: 72px 72px;
-  mask-image: radial-gradient(70% 60% at 50% 0%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(90% 80% at 50% 20%, #000 10%, transparent 85%);
 }
 
 .divider {

@@ -133,7 +133,7 @@
   padding: clamp(56px, 9vw, 110px) 24px;
   border-radius: 28px;
   border: 1px solid var(--line-2);
-  background: radial-gradient(80% 120% at 50% 0%, rgba(76, 125, 255, 0.2), transparent 60%), linear-gradient(180deg, #0f1220, #0a0b10);
+  background: radial-gradient(80% 120% at 50% 0%, rgba(76, 125, 255, 0.2), transparent 60%), linear-gradient(180deg, #18224d, #0e1326);
 }
 .cta-grid {
   position: absolute;
@@ -189,6 +189,14 @@
 .site-footer {
   border-top: 1px solid var(--line);
   padding: 56px 0 28px;
+  background: linear-gradient(180deg, rgba(76, 125, 255, 0.06), rgb(var(--bg-rgb) / 0.6));
+}
+/* soft colour bands so long sections don't sit on a flat background */
+.how {
+  background: linear-gradient(180deg, transparent, rgba(76, 125, 255, 0.06) 30%, rgba(155, 140, 255, 0.05) 70%, transparent);
+}
+.faq {
+  background: radial-gradient(50% 60% at 15% 50%, rgba(155, 140, 255, 0.07), transparent 70%);
 }
 .footer-grid {
   display: grid;

@@ -10,7 +10,7 @@ export default function Logo({ size = 28 }: { size?: number }) {
           <stop offset="1" stopColor="#9b8cff" />
         </linearGradient>
       </defs>
-      <rect width="32" height="32" rx="8" fill="#13161d" stroke="rgba(255,255,255,0.1)" />
+      <rect width="32" height="32" rx="8" fill="#19213b" stroke="rgba(255,255,255,0.1)" />
       <path
         d="M8 23V12l7 6.5L24 8v15"
         fill="none"

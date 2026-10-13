@@ -447,7 +447,7 @@ textarea::placeholder,
   padding: 26px clamp(22px, 4vw, 40px);
 }
 .report.panel .report-block {
-  background: #0c0d12;
+  background: var(--bg-2);
 }
 .report-block h4,
 .plan h4 {
