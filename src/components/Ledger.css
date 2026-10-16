@@ -1,0 +1,220 @@
+.lg-pick {
+  display: grid;
+  gap: 20px;
+  padding: clamp(20px, 3.5vw, 36px);
+}
+.lg-intro {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.lg-intro .drop-icon {
+  flex: none;
+}
+.lg-pages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.lg-pages li {
+  position: relative;
+  width: 132px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  background: var(--surface-2);
+}
+.lg-pages li.is-done {
+  border-color: rgba(79, 214, 160, 0.5);
+}
+.lg-pages li.is-error {
+  border-color: rgba(255, 107, 122, 0.6);
+}
+.lg-pages li.is-busy {
+  border-color: rgba(76, 125, 255, 0.7);
+}
+.lg-pages img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+}
+.lg-page-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.lg-pages li.is-done .lg-page-state {
+  color: var(--good);
+}
+.lg-pages li.is-error .lg-page-state {
+  color: var(--bad);
+}
+.lg-pages button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 0;
+  background: rgb(var(--bg-rgb) / 0.8);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+}
+.lg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.lg-reading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.lg-edit {
+  display: grid;
+  gap: 16px;
+  padding: clamp(18px, 3vw, 28px);
+}
+.lg-edit-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.lg-cur {
+  display: grid;
+  gap: 4px;
+}
+.lg-cur select,
+.lg-table select {
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 9px;
+  border: 1px solid var(--line-2);
+  background: var(--surface-2);
+  font-size: 13.5px;
+}
+.lg-table-wrap {
+  overflow-x: auto;
+  max-height: 520px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.lg-table {
+  min-width: 620px;
+}
+.lg-table td {
+  padding: 4px 6px;
+}
+.lg-table input {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 13.5px;
+  outline: none;
+}
+.lg-table input:hover {
+  border-color: var(--line-2);
+}
+.lg-table input:focus {
+  border-color: rgba(76, 125, 255, 0.7);
+  background: rgba(255, 255, 255, 0.03);
+}
+.lg-table .r input {
+  text-align: right;
+}
+.lg-table td:nth-child(1) {
+  width: 110px;
+}
+.lg-table td:nth-child(3) {
+  width: 90px;
+}
+.lg-table td:nth-child(4) {
+  width: 130px;
+}
+.lg-table tr.is-out input {
+  color: #ffb3bb;
+}
+.lg-edit-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.lg-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.lg-done {
+  display: grid;
+  gap: 14px;
+}
+.lg-money {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) 1.4fr;
+  overflow: hidden;
+}
+.lg-money .kpi-value.is-good {
+  color: var(--good);
+}
+.lg-money .kpi-value.is-bad {
+  color: var(--bad);
+}
+.lg-costs {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+}
+.lg-noincome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 22px;
+}
+.lg-back {
+  justify-self: start;
+}
+
+@media (max-width: 900px) {
+  .lg-money {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lg-costs {
+    grid-column: span 2;
+    border-top: 1px solid var(--line);
+  }
+}
+@media (max-width: 560px) {
+  .lg-intro {
+    align-items: flex-start;
+  }
+  .lg-pages li {
+    width: calc(50% - 6px);
+  }
+  .lg-money {
+    grid-template-columns: 1fr;
+  }
+  .lg-costs {
+    grid-column: auto;
+  }
+}

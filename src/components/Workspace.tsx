@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
 import Upload from './Upload'
+import Ledger from './Ledger'
 import Marketplaces from './Marketplaces'
 import Funnel from './Funnel'
 import Audit from './Audit'
@@ -11,7 +12,7 @@ import { TAB_EVENT, TABS } from '../config'
 import type { TabId } from '../config'
 import './Workspace.css'
 
-const ICONS: Record<TabId, IconName> = { upload: 'table', marketplaces: 'store', funnel: 'funnel', audit: 'form' }
+const ICONS: Record<TabId, IconName> = { upload: 'table', ledger: 'camera', marketplaces: 'store', funnel: 'funnel', audit: 'form' }
 
 const fromHash = (): TabId | null => {
   const h = window.location.hash.slice(1)
@@ -98,6 +99,7 @@ export default function Workspace() {
         {TABS.map((t) => (
           <div key={t.id} id={t.id} role="tabpanel" aria-labelledby={`ws-tab-${t.id}`} hidden={tab !== t.id} className="ws-panel">
             {t.id === 'upload' && <Upload />}
+            {t.id === 'ledger' && <Ledger />}
             {t.id === 'marketplaces' && <Marketplaces />}
             {t.id === 'funnel' && <Funnel />}
             {t.id === 'audit' && <Audit />}

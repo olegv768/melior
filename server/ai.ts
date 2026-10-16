@@ -97,6 +97,77 @@ export async function generateJson(prompt: string, schema: unknown): Promise<unk
   throw new AiError('ai_failed', info)
 }
 
+const VISION_MODEL = () => process.env.GROQ_VISION_MODEL || 'qwen/qwen3.8-27b'
+
+/**
+ * Reads an image (data URL) with a vision model and returns parsed JSON.
+ * The free tier caps output at ~1000 tokens/min, so answers are kept short (max_tokens).
+ */
+export async function visionJson(prompt: string, imageDataUrl: string): Promise<unknown> {
+  const key = groqKey()
+  if (!key) throw new AiError('not_configured')
+  const deadline = Date.now() + TOTAL_MS
+  const notes: string[] = []
+  const statuses: number[] = []
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const left = deadline - Date.now()
+    if (left < 3_000) break
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), Math.min(40_000, left))
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+        body: JSON.stringify({
+          model: VISION_MODEL(),
+          temperature: 0,
+          max_tokens: 900,
+          response_format: { type: 'json_object' },
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                { type: 'image_url', image_url: { url: imageDataUrl } },
+              ],
+            },
+          ],
+        }),
+      })
+      if (!res.ok) {
+        statuses.push(res.status)
+        const body = (await res.text().catch(() => '')).slice(0, 300)
+        console.error('Groq vision error', res.status, body)
+        notes.push(`${res.status} ${body.match(/"code"\s*:\s*"([^"]+)"/)?.[1] ?? ''}`.trim())
+        if (res.status === 401 || res.status === 403) throw new AiError('ai_key', notes.join('; '))
+        if (res.status === 429) break // per-minute token cap: retrying right away won't help
+        continue
+      }
+      const data = (await res.json()) as { choices?: { message?: { content?: string } }[] }
+      const text = (data.choices?.[0]?.message?.content ?? '').trim().replace(/^```(?:json)?\s*|\s*```$/g, '')
+      try {
+        return JSON.parse(text)
+      } catch {
+        statuses.push(0)
+        notes.push('ответ не JSON')
+      }
+    } catch (err) {
+      if (err instanceof AiError) throw err
+      statuses.push(err instanceof Error && err.name === 'AbortError' ? -1 : 0)
+      notes.push(err instanceof Error ? err.name : 'network')
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+  const info = notes.join('; ')
+  if (statuses.includes(429)) throw new AiError('ai_quota', info)
+  if (statuses.some((s) => s >= 500)) throw new AiError('ai_busy', info)
+  if (statuses.includes(-1)) throw new AiError('ai_timeout', info)
+  throw new AiError('ai_failed', info)
+}
+
 /** Tiny live request to check the key from the deployed site (GET /api/audit?check=1). */
 export async function aiCheck(): Promise<{ ok: boolean; status: number; error?: string }> {
   const key = groqKey()

@@ -93,7 +93,7 @@ export default function Hero() {
 
           <motion.ul className="hero-facts" {...fade(0.42)}>
             <li>
-              <span className="mono">01</span>Excel и CSV: выручка, маржа, ABC
+              <span className="mono">01</span>Excel, CSV или фото тетради: выручка, маржа, прибыль
             </li>
             <li>
               <span className="mono">02</span>Kaspi, Wildberries, Ozon по API

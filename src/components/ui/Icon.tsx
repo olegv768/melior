@@ -19,6 +19,7 @@ const PATHS = {
   funnel: 'M4 5h16l-6 7.5V18l-4 2v-7.5z',
   form: 'M7 3.5h10v17H7zM10 8h4M10 12h4M10 16h2',
   upload: 'M12 16V4M7 9l5-5 5 5M5 20h14',
+  camera: 'M4 8h3l2-3h6l2 3h3v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z',
 } as const
 
 export type IconName = keyof typeof PATHS

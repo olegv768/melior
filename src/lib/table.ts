@@ -39,16 +39,16 @@ export async function readWorkbook(file: File): Promise<Sheet[]> {
 /* ---------- column mapping ---------- */
 
 export const FIELDS = [
-  { key: 'date', label: 'Дата', re: /дата|date|күні|время|period|период/i },
-  { key: 'product', label: 'Товар', re: /товар|наимен|название|номенкл|product|item|продукт|позици|блюдо|услуг|sku|артикул/i },
-  { key: 'qty', label: 'Количество', re: /кол-?во|количеств|qty|quantity|шт|units|саны/i },
-  { key: 'amount', label: 'Сумма', re: /сумма|выручк|итог|amount|revenue|total|оплачен|стоимость заказа|сомасы/i },
-  { key: 'price', label: 'Цена', re: /цена|price|бағасы/i },
-  { key: 'cost', label: 'Себестоимость', re: /себест|закуп|cost|purchase/i },
-  { key: 'category', label: 'Категория', re: /категор|category|группа|раздел/i },
-  { key: 'status', label: 'Статус', re: /статус|status|состояни/i },
-  { key: 'order', label: 'Номер заказа / чека', re: /заказ|чек|order|receipt|№|номер/i },
-  { key: 'customer', label: 'Клиент', re: /клиент|покупател|customer|client|телефон|phone|buyer/i },
+  { key: 'date', label: 'Дата', re: /дата|date|күн|уақыт|время|period|период|кезең/i },
+  { key: 'product', label: 'Товар', re: /товар|наимен|название|номенкл|product|item|продукт|позици|блюдо|услуг|sku|артикул|тауар|атау|өнім|қызмет|тағам/i },
+  { key: 'qty', label: 'Количество', re: /кол-?во|количеств|qty|quantity|шт|units|саны|мөлшер|дана/i },
+  { key: 'amount', label: 'Сумма', re: /сумма|выручк|итог|amount|revenue|total|оплачен|стоимость заказа|сома|түсім|табыс/i },
+  { key: 'price', label: 'Цена', re: /цена|price|баға/i },
+  { key: 'cost', label: 'Себестоимость', re: /себест|закуп|cost|purchase|өзіндік|сатып алу(?!шы)/i },
+  { key: 'category', label: 'Категория', re: /категор|category|группа|раздел|санат|топ|бөлім/i },
+  { key: 'status', label: 'Статус', re: /статус|status|состояни|мәртебе|күй/i },
+  { key: 'order', label: 'Номер заказа / чека', re: /заказ|чек|order|receipt|№|номер|тапсырыс|нөмір/i },
+  { key: 'customer', label: 'Клиент', re: /клиент|покупател|customer|client|телефон|phone|buyer|сатып алушы|тұтынушы/i },
 ] as const
 
 export type FieldKey = (typeof FIELDS)[number]['key']
@@ -130,8 +130,8 @@ const localIso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).pad
 
 function statusOf(c: Cell): 'sold' | 'cancel' | 'return' {
   const s = text(c).toLowerCase()
-  if (/возврат|return|refund/.test(s)) return 'return'
-  if (/отмен|cancel|аннул|отказ/.test(s)) return 'cancel'
+  if (/возврат|return|refund|қайтар/.test(s)) return 'return'
+  if (/отмен|cancel|аннул|отказ|бас тарт|жойыл|тоқтат/.test(s)) return 'cancel'
   return 'sold'
 }
 
@@ -181,7 +181,7 @@ export function buildSales(rows: Cell[][], headerRow: number, m: Mapping, opt: B
     }
     // repeated header rows / subtotal lines ("Итого") are skipped
     const name = m.product !== undefined ? text(r[m.product]) || 'Без названия' : m.category !== undefined ? text(r[m.category]) || 'Без категории' : 'Все продажи'
-    if (/^(итого|всего|total)/i.test(name)) {
+    if (/^(итого|всего|total|барлығы|жиыны|қорытынды)/i.test(name)) {
       skipped++
       continue
     }

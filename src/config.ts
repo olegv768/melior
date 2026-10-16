@@ -7,6 +7,7 @@ export const SITE = {
 
 export const TABS = [
   { id: 'upload', label: 'Таблица', sub: 'Excel или CSV' },
+  { id: 'ledger', label: 'Тетрадь', sub: 'Фото записей' },
   { id: 'marketplaces', label: 'Маркетплейсы', sub: 'Kaspi · WB · Ozon' },
   { id: 'funnel', label: 'Воронка', sub: 'Этапы продаж' },
   { id: 'audit', label: 'Аудит', sub: 'Без данных' },

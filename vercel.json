@@ -4,6 +4,7 @@
   "outputDirectory": "dist",
   "functions": {
     "api/audit.ts": { "maxDuration": 60 },
-    "api/marketplace.ts": { "maxDuration": 60 }
+    "api/marketplace.ts": { "maxDuration": 60 },
+    "api/ledger.ts": { "maxDuration": 60 }
   }
 }

@@ -112,6 +112,13 @@ export default function Audit() {
 
   return (
     <div className="ws-body" ref={topRef}>
+      <a href="#ledger" className="audit-ledger-hint">
+        <Icon name="camera" size={18} />
+        <span>
+          <b>Ведёте учёт в тетради?</b> Сфотографируйте страницу — ИИ сам перепишет приход и расход.
+        </span>
+        <span className="arrow" aria-hidden="true">→</span>
+      </a>
 
         <AnimatePresence mode="wait">
           {phase.name === 'form' && (
