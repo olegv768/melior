@@ -8,6 +8,8 @@ import { buildDemoReport } from '../lib/demoReport'
 import Reveal from './ui/Reveal'
 import Icon from './ui/Icon'
 import ReportView from './ReportView'
+import Ledger from './Ledger'
+import type { LedgerPlan } from './Ledger'
 import './Audit.css'
 
 type Form = {
@@ -33,7 +35,56 @@ const FIELD_ORDER = ['businessType', 'turnover', 'problem', 'employees', 'detail
 /** Numbers carried over from the analysed notebook; `key` changes on every hand-over. */
 export type AuditPrefill = { key: number; turnover?: Turnover; problem?: Problem; details?: string }
 
-export default function Audit({ prefill }: { prefill?: AuditPrefill }) {
+type Mode = 'ledger' | 'audit'
+
+/** Unified «Аудит»: notebook photo recognition or 4-question express audit. */
+export default function Audit({ prefill: externalPrefill }: { prefill?: AuditPrefill } = {}) {
+  const [mode, setMode] = useState<Mode>(externalPrefill ? 'audit' : 'ledger')
+  const [prefill, setPrefill] = useState<AuditPrefill | undefined>(externalPrefill)
+
+  const toPlan = (p: LedgerPlan) => {
+    setPrefill({ ...p, key: Date.now() })
+    setMode('audit')
+  }
+
+  return (
+    <div className="ws-body sb">
+      <div className="sb-switch" role="tablist" aria-label="Формат аудита">
+        {(
+          [
+            { id: 'ledger', icon: 'camera', title: 'Есть тетрадь', sub: 'Сфотографируйте записи' },
+            { id: 'audit', icon: 'form', title: 'Записей нет', sub: 'Ответьте на 4 вопроса' },
+          ] as const
+        ).map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            role="tab"
+            aria-selected={mode === m.id}
+            className={mode === m.id ? 'is-on' : ''}
+            onClick={() => setMode(m.id)}
+          >
+            {mode === m.id && <motion.span layoutId="sb-pill" className="sb-pill" />}
+            <Icon name={m.icon} size={20} />
+            <span>
+              <b>{m.title}</b>
+              <span>{m.sub}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div hidden={mode !== 'ledger'}>
+        <Ledger onPlan={toPlan} />
+      </div>
+      <div hidden={mode !== 'audit'}>
+        <AuditForm prefill={prefill} />
+      </div>
+    </div>
+  )
+}
+
+export function AuditForm({ prefill }: { prefill?: AuditPrefill }) {
   const [form, setForm] = useState<Form>(EMPTY)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [phase, setPhase] = useState<Phase>({ name: 'form' })
@@ -128,216 +179,216 @@ export default function Audit({ prefill }: { prefill?: AuditPrefill }) {
   const filled = [form.businessType, form.turnover, form.problem, form.employees].filter(Boolean).length
 
   return (
-    <div className="ws-body" ref={topRef}>
+    <div className="audit-flow" ref={topRef}>
       {prefill && phase.name === 'form' && (
         <p className="audit-prefilled">
           <Icon name="check" size={16} /> Цифры из тетради уже подставлены. Выберите тип бизнеса и число сотрудников — и получите план.
         </p>
       )}
 
-        <AnimatePresence mode="wait">
-          {phase.name === 'form' && (
-            <motion.div key="form" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }}>
-              <Reveal>
-                <form className="audit-form panel" onSubmit={onSubmit} noValidate>
-                  <div className="audit-progress" aria-hidden="true">
-                    <span style={{ width: `${(filled / 4) * 100}%` }} />
-                  </div>
+      <AnimatePresence mode="wait">
+        {phase.name === 'form' && (
+          <motion.div key="form" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }}>
+            <Reveal>
+              <form className="audit-form panel" onSubmit={onSubmit} noValidate>
+                <div className="audit-progress" aria-hidden="true">
+                  <span style={{ width: `${(filled / 4) * 100}%` }} />
+                </div>
 
-                  <fieldset className="field" aria-describedby={errors.businessType ? 'e-businessType' : undefined}>
-                    <legend>
-                      <span className="field-n mono">01</span> Тип бизнеса
-                    </legend>
-                    <div className="tiles" role="radiogroup" aria-invalid={!!errors.businessType}>
-                      {BUSINESS_TYPES.map((b, i) => (
-                        <label key={b.id} className={`tile ${form.businessType === b.id ? 'is-on' : ''}`}>
-                          <input
-                            id={i === 0 ? 'f-businessType' : undefined}
-                            type="radio"
-                            name="businessType"
-                            value={b.id}
-                            checked={form.businessType === b.id}
-                            onChange={() => set('businessType', b.id)}
-                          />
-                          <Icon name={b.id} size={22} />
-                          <span>{b.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                    {errors.businessType && <FieldError id="e-businessType" text={errors.businessType} />}
-                  </fieldset>
-
-                  <fieldset className="field" aria-describedby={errors.turnover ? 'e-turnover' : undefined}>
-                    <legend>
-                      <span className="field-n mono">02</span> Примерный оборот в месяц
-                    </legend>
-                    <div className="pills" role="radiogroup">
-                      {TURNOVERS.map((t, i) => (
-                        <label key={t.id} className={`pill ${form.turnover === t.id ? 'is-on' : ''}`}>
-                          <input
-                            id={i === 0 ? 'f-turnover' : undefined}
-                            type="radio"
-                            name="turnover"
-                            value={t.id}
-                            checked={form.turnover === t.id}
-                            onChange={() => set('turnover', t.id)}
-                          />
-                          {t.label}
-                        </label>
-                      ))}
-                    </div>
-                    {errors.turnover && <FieldError id="e-turnover" text={errors.turnover} />}
-                  </fieldset>
-
-                  <fieldset className="field" aria-describedby={errors.problem ? 'e-problem' : undefined}>
-                    <legend>
-                      <span className="field-n mono">03</span> Главная проблема
-                    </legend>
-                    <div className="pills" role="radiogroup">
-                      {PROBLEMS.map((p, i) => (
-                        <label key={p.id} className={`pill ${form.problem === p.id ? 'is-on' : ''}`}>
-                          <input
-                            id={i === 0 ? 'f-problem' : undefined}
-                            type="radio"
-                            name="problem"
-                            value={p.id}
-                            checked={form.problem === p.id}
-                            onChange={() => set('problem', p.id)}
-                          />
-                          {p.label}
-                        </label>
-                      ))}
-                    </div>
-                    {errors.problem && <FieldError id="e-problem" text={errors.problem} />}
-                  </fieldset>
-
-                  <div className="field-row">
-                    <div className="field">
-                      <label className="legend" htmlFor="f-employees">
-                        <span className="field-n mono">04</span> Количество сотрудников
-                      </label>
-                      <div className={`stepper ${errors.employees ? 'is-invalid' : ''}`}>
-                        <button type="button" aria-label="Уменьшить" onClick={() => stepEmployees(-1)}>
-                          <Icon name="minus" size={16} />
-                        </button>
+                <fieldset className="field" aria-describedby={errors.businessType ? 'e-businessType' : undefined}>
+                  <legend>
+                    <span className="field-n mono">01</span> Тип бизнеса
+                  </legend>
+                  <div className="tiles" role="radiogroup" aria-invalid={!!errors.businessType}>
+                    {BUSINESS_TYPES.map((b, i) => (
+                      <label key={b.id} className={`tile ${form.businessType === b.id ? 'is-on' : ''}`}>
                         <input
-                          id="f-employees"
-                          inputMode="numeric"
-                          placeholder="например, 8"
-                          value={form.employees}
-                          onChange={(e) => set('employees', e.target.value.replace(/[^\d]/g, '').slice(0, 4))}
-                          aria-invalid={!!errors.employees}
-                          aria-describedby={errors.employees ? 'e-employees' : undefined}
+                          id={i === 0 ? 'f-businessType' : undefined}
+                          type="radio"
+                          name="businessType"
+                          value={b.id}
+                          checked={form.businessType === b.id}
+                          onChange={() => set('businessType', b.id)}
                         />
-                        <button type="button" aria-label="Увеличить" onClick={() => stepEmployees(1)}>
-                          <Icon name="plus" size={16} />
-                        </button>
-                      </div>
-                      {errors.employees && <FieldError id="e-employees" text={errors.employees} />}
-                    </div>
-
-                    <div className="field">
-                      <label className="legend" htmlFor="f-details">
-                        <span className="field-n mono">05</span> Коротко о бизнесе <span className="muted">— необязательно</span>
+                        <Icon name={b.id} size={22} />
+                        <span>{b.label}</span>
                       </label>
-                      <textarea
-                        id="f-details"
-                        rows={3}
-                        maxLength={DETAILS_MAX}
-                        placeholder="Например: магазин у дома, учёт в тетради"
-                        value={form.details}
-                        onChange={(e) => set('details', e.target.value)}
-                        aria-invalid={!!errors.details}
-                        aria-describedby={errors.details ? 'e-details' : 'c-details'}
+                    ))}
+                  </div>
+                  {errors.businessType && <FieldError id="e-businessType" text={errors.businessType} />}
+                </fieldset>
+
+                <fieldset className="field" aria-describedby={errors.turnover ? 'e-turnover' : undefined}>
+                  <legend>
+                    <span className="field-n mono">02</span> Примерный оборот в месяц
+                  </legend>
+                  <div className="pills" role="radiogroup">
+                    {TURNOVERS.map((t, i) => (
+                      <label key={t.id} className={`pill ${form.turnover === t.id ? 'is-on' : ''}`}>
+                        <input
+                          id={i === 0 ? 'f-turnover' : undefined}
+                          type="radio"
+                          name="turnover"
+                          value={t.id}
+                          checked={form.turnover === t.id}
+                          onChange={() => set('turnover', t.id)}
+                        />
+                        {t.label}
+                      </label>
+                    ))}
+                  </div>
+                  {errors.turnover && <FieldError id="e-turnover" text={errors.turnover} />}
+                </fieldset>
+
+                <fieldset className="field" aria-describedby={errors.problem ? 'e-problem' : undefined}>
+                  <legend>
+                    <span className="field-n mono">03</span> Главная проблема
+                  </legend>
+                  <div className="pills" role="radiogroup">
+                    {PROBLEMS.map((p, i) => (
+                      <label key={p.id} className={`pill ${form.problem === p.id ? 'is-on' : ''}`}>
+                        <input
+                          id={i === 0 ? 'f-problem' : undefined}
+                          type="radio"
+                          name="problem"
+                          value={p.id}
+                          checked={form.problem === p.id}
+                          onChange={() => set('problem', p.id)}
+                        />
+                        {p.label}
+                      </label>
+                    ))}
+                  </div>
+                  {errors.problem && <FieldError id="e-problem" text={errors.problem} />}
+                </fieldset>
+
+                <div className="field-row">
+                  <div className="field">
+                    <label className="legend" htmlFor="f-employees">
+                      <span className="field-n mono">04</span> Количество сотрудников
+                    </label>
+                    <div className={`stepper ${errors.employees ? 'is-invalid' : ''}`}>
+                      <button type="button" aria-label="Уменьшить" onClick={() => stepEmployees(-1)}>
+                        <Icon name="minus" size={16} />
+                      </button>
+                      <input
+                        id="f-employees"
+                        inputMode="numeric"
+                        placeholder="например, 8"
+                        value={form.employees}
+                        onChange={(e) => set('employees', e.target.value.replace(/[^\d]/g, '').slice(0, 4))}
+                        aria-invalid={!!errors.employees}
+                        aria-describedby={errors.employees ? 'e-employees' : undefined}
                       />
-                      <div className="field-foot">
-                        {errors.details ? <FieldError id="e-details" text={errors.details} /> : <span />}
-                        <span id="c-details" className="muted small num">
-                          {form.details.length}/{DETAILS_MAX}
-                        </span>
-                      </div>
+                      <button type="button" aria-label="Увеличить" onClick={() => stepEmployees(1)}>
+                        <Icon name="plus" size={16} />
+                      </button>
+                    </div>
+                    {errors.employees && <FieldError id="e-employees" text={errors.employees} />}
+                  </div>
+
+                  <div className="field">
+                    <label className="legend" htmlFor="f-details">
+                      <span className="field-n mono">05</span> Коротко о бизнесе <span className="muted">— необязательно</span>
+                    </label>
+                    <textarea
+                      id="f-details"
+                      rows={3}
+                      maxLength={DETAILS_MAX}
+                      placeholder="Например: магазин у дома, учёт в тетради"
+                      value={form.details}
+                      onChange={(e) => set('details', e.target.value)}
+                      aria-invalid={!!errors.details}
+                      aria-describedby={errors.details ? 'e-details' : 'c-details'}
+                    />
+                    <div className="field-foot">
+                      {errors.details ? <FieldError id="e-details" text={errors.details} /> : <span />}
+                      <span id="c-details" className="muted small num">
+                        {form.details.length}/{DETAILS_MAX}
+                      </span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="audit-submit">
-                    <p className="muted small">
-                      Без персональных данных клиентов.
-                    </p>
-                    <button type="submit" className="btn btn-primary">
-                      Начать анализ <span className="arrow">→</span>
-                    </button>
-                  </div>
-                  {Object.values(errors).some(Boolean) && (
-                    <p className="form-summary" role="alert">
-                      <Icon name="alert" size={16} /> Заполните отмеченные поля
-                    </p>
-                  )}
-                </form>
-              </Reveal>
-            </motion.div>
-          )}
+                <div className="audit-submit">
+                  <p className="muted small">
+                    Без персональных данных клиентов.
+                  </p>
+                  <button type="submit" className="btn btn-primary">
+                    Начать анализ <span className="arrow">→</span>
+                  </button>
+                </div>
+                {Object.values(errors).some(Boolean) && (
+                  <p className="form-summary" role="alert">
+                    <Icon name="alert" size={16} /> Заполните отмеченные поля
+                  </p>
+                )}
+              </form>
+            </Reveal>
+          </motion.div>
+        )}
 
-          {phase.name === 'running' && (
-            <motion.div
-              key="running"
-              className="audit-running panel"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              role="status"
-              aria-live="polite"
-            >
-              <div className="scan" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </div>
-              <h3>Анализируем бизнес</h3>
-              <ol className="stages">
-                {STAGES.map((s, i) => (
-                  <li key={s} className={i < phase.stage ? 'is-done' : i === phase.stage ? 'is-on' : ''}>
-                    <span className="stage-mark">{i < phase.stage ? <Icon name="check" size={14} /> : <i />}</span>
-                    {s}
-                  </li>
-                ))}
-              </ol>
-              <div className="stage-bar">
-                <motion.span animate={{ width: `${((phase.stage + 1) / STAGES.length) * 100}%` }} transition={{ duration: 0.6 }} />
-              </div>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={reset}>
-                Отменить
+        {phase.name === 'running' && (
+          <motion.div
+            key="running"
+            className="audit-running panel"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            role="status"
+            aria-live="polite"
+          >
+            <div className="scan" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
+            <h3>Анализируем бизнес</h3>
+            <ol className="stages">
+              {STAGES.map((s, i) => (
+                <li key={s} className={i < phase.stage ? 'is-done' : i === phase.stage ? 'is-on' : ''}>
+                  <span className="stage-mark">{i < phase.stage ? <Icon name="check" size={14} /> : <i />}</span>
+                  {s}
+                </li>
+              ))}
+            </ol>
+            <div className="stage-bar">
+              <motion.span animate={{ width: `${((phase.stage + 1) / STAGES.length) * 100}%` }} transition={{ duration: 0.6 }} />
+            </div>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={reset}>
+              Отменить
+            </button>
+          </motion.div>
+        )}
+
+        {phase.name === 'error' && (
+          <motion.div key="error" className="audit-error panel" role="alert" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <span className="audit-error-icon">
+              <Icon name="alert" size={22} />
+            </span>
+            <h3>Не удалось получить отчёт</h3>
+            <p>{phase.message}</p>
+            <div className="audit-error-actions">
+              <button type="button" className="btn btn-primary" onClick={() => analyse(phase.input)}>
+                <Icon name="refresh" size={16} /> Повторить
               </button>
-            </motion.div>
-          )}
+              <button type="button" className="btn btn-ghost" onClick={() => setPhase({ name: 'done', report: buildDemoReport(phase.input) })}>
+                Показать демо-отчёт
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={reset}>
+                Изменить ответы
+              </button>
+            </div>
+          </motion.div>
+        )}
 
-          {phase.name === 'error' && (
-            <motion.div key="error" className="audit-error panel" role="alert" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <span className="audit-error-icon">
-                <Icon name="alert" size={22} />
-              </span>
-              <h3>Не удалось получить отчёт</h3>
-              <p>{phase.message}</p>
-              <div className="audit-error-actions">
-                <button type="button" className="btn btn-primary" onClick={() => analyse(phase.input)}>
-                  <Icon name="refresh" size={16} /> Повторить
-                </button>
-                <button type="button" className="btn btn-ghost" onClick={() => setPhase({ name: 'done', report: buildDemoReport(phase.input) })}>
-                  Показать демо-отчёт
-                </button>
-                <button type="button" className="btn btn-ghost" onClick={reset}>
-                  Изменить ответы
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {phase.name === 'done' && (
-            <motion.div key="done" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
-              <ReportView report={phase.report} onReset={reset} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {phase.name === 'done' && (
+          <motion.div key="done" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+            <ReportView report={phase.report} onReset={reset} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

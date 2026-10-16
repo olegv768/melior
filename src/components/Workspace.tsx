@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import Upload from './Upload'
 import Marketplaces from './Marketplaces'
 import Funnel from './Funnel'
-import SmallBiz from './SmallBiz'
+import Audit from './Audit'
 import Icon from './ui/Icon'
 import type { IconName } from './ui/Icon'
 import { TAB_EVENT, TABS } from '../config'
@@ -101,7 +101,7 @@ export default function Workspace() {
             {t.id === 'upload' && <Upload />}
             {t.id === 'marketplaces' && <Marketplaces />}
             {t.id === 'funnel' && <Funnel />}
-            {t.id === 'audit' && <SmallBiz />}
+            {t.id === 'audit' && <Audit />}
           </div>
         ))}
       </div>

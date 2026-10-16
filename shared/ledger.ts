@@ -11,7 +11,7 @@ export type LedgerRow = {
 }
 
 export const LEDGER_MAX_IMAGE_BYTES = 3_500_000 // base64 data URL, well under Groq's 4 MB image limit
-export const LEDGER_MAX_PAGES = 6
+export const LEDGER_MAX_PAGES = 3 // Up to 3 pages to respect Groq rate limits
 
 /** Compact array output keeps the answer short (the free tier caps output tokens per minute). */
 export const LEDGER_PROMPT = `Это фото страницы тетради учёта малого бизнеса в Казахстане (магазин, кафе, услуги). Записи от руки, по-русски или по-казахски.
@@ -79,3 +79,20 @@ export function fullDate(d: string, today = new Date()): string {
   if (!m[3] && new Date(year, month - 1, day) > today) year -= 1
   return `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`
 }
+
+/** Pre-parsed sample rows matching ledger-sample.jpg recognition for demo testing without spending Groq AI tokens */
+export const SAMPLE_LEDGER_ROWS: LedgerRow[] = [
+  { date: '14.10', item: 'хлеб', qty: 25, amount: 7500, kind: 'in' },
+  { date: '14.10', item: 'молоко', qty: 12, amount: 7200, kind: 'in' },
+  { date: '14.10', item: 'сахар', qty: 3, amount: 1650, kind: 'in' },
+  { date: '14.10', item: 'закуп у Асхата', qty: null, amount: 38000, kind: 'out' },
+  { date: '15.10', item: 'хлеб', qty: 30, amount: 9000, kind: 'in' },
+  { date: '15.10', item: 'масло', qty: 6, amount: 5400, kind: 'in' },
+  { date: '15.10', item: 'яйца', qty: 4, amount: 4800, kind: 'in' },
+  { date: '15.10', item: 'свет за месяц', qty: null, amount: 12500, kind: 'out' },
+  { date: '15.10', item: 'Айгуль апай в долг', qty: null, amount: 2300, kind: 'out' },
+  { date: '16.10', item: 'хлеб', qty: 18, amount: 5400, kind: 'in' },
+  { date: '16.10', item: 'чай', qty: 5, amount: 4250, kind: 'in' },
+  { date: '16.10', item: 'аренда', qty: null, amount: 60000, kind: 'out' },
+]
+

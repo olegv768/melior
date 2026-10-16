@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { LEDGER_MAX_IMAGE_BYTES, LEDGER_MAX_PAGES, fullDate } from '../../shared/ledger'
+import { LEDGER_MAX_IMAGE_BYTES, LEDGER_MAX_PAGES, SAMPLE_LEDGER_ROWS, fullDate } from '../../shared/ledger'
 import { TURNOVERS } from '../../shared/audit'
 import type { Problem, Turnover } from '../../shared/audit'
 import type { LedgerKind, LedgerRow } from '../../shared/ledger'
@@ -13,7 +13,7 @@ import Icon from './ui/Icon'
 import SalesDashboard from './SalesDashboard'
 import './Ledger.css'
 
-type Page = { id: number; name: string; url: string; status: 'wait' | 'busy' | 'done' | 'error'; found?: number }
+type Page = { id: number; name: string; url: string; status: 'wait' | 'busy' | 'done' | 'error'; found?: number; isSample?: boolean }
 type Stage = { name: 'pick' } | { name: 'read' } | { name: 'edit' } | { name: 'done'; data: SalesData | null }
 
 const ERRORS: Record<string, string> = {
@@ -57,7 +57,10 @@ async function toDataUrl(blob: Blob): Promise<string> {
 async function recognise(image: string): Promise<LedgerRow[]> {
   let res: Response
   try {
-    res = await fetch('/api/ledger', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image }) })
+    res = await fetch('/api/audit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image }) })
+    if (res.status === 404 || res.status === 405) {
+      res = await fetch('/api/ledger', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image }) })
+    }
   } catch {
     throw new Error('network')
   }
@@ -76,7 +79,7 @@ export default function Ledger({ onPlan }: { onPlan?: (p: LedgerPlan) => void })
   const pickRef = useRef<HTMLInputElement>(null)
   const camRef = useRef<HTMLInputElement>(null)
 
-  async function addFiles(files: Blob[], names: string[]) {
+  async function addFiles(files: Blob[], names: string[], isSample = false) {
     setError(null)
     const room = LEDGER_MAX_PAGES - pages.length
     if (room <= 0) return setError(`Не больше ${LEDGER_MAX_PAGES} страниц за раз.`)
@@ -84,7 +87,7 @@ export default function Ledger({ onPlan }: { onPlan?: (p: LedgerPlan) => void })
     for (let i = 0; i < Math.min(room, files.length); i++) {
       if (!files[i].type.startsWith('image/')) continue
       try {
-        added.push({ id: ++uid, name: names[i], url: await toDataUrl(files[i]), status: 'wait' })
+        added.push({ id: ++uid, name: names[i], url: await toDataUrl(files[i]), status: 'wait', isSample })
       } catch {
         setError('Не удалось открыть фото. Попробуйте JPEG или PNG (не HEIC).')
       }
@@ -95,12 +98,12 @@ export default function Ledger({ onPlan }: { onPlan?: (p: LedgerPlan) => void })
   const onPick = (e: ChangeEvent<HTMLInputElement>) => {
     const list = [...(e.target.files ?? [])]
     e.target.value = ''
-    addFiles(list, list.map((f) => f.name))
+    addFiles(list, list.map((f) => f.name), false)
   }
 
   const trySample = async () => {
     const blob = await fetch('/ledger-sample.jpg').then((r) => r.blob())
-    await addFiles([blob], ['пример_тетради.jpg'])
+    await addFiles([blob], ['пример_тетради.jpg'], true)
   }
 
   async function readAll() {
@@ -110,7 +113,14 @@ export default function Ledger({ onPlan }: { onPlan?: (p: LedgerPlan) => void })
       if (p.status === 'done') continue
       setPages((ps) => ps.map((x) => (x.id === p.id ? { ...x, status: 'busy' } : x)))
       try {
-        const found = await recognise(p.url)
+        let found: LedgerRow[]
+        if (p.isSample) {
+          // Stub: simulate realistic recognition time (~650ms) without calling Groq API / wasting tokens
+          await new Promise((r) => setTimeout(r, 650))
+          found = SAMPLE_LEDGER_ROWS
+        } else {
+          found = await recognise(p.url)
+        }
         setRows((rs) => [...rs, ...found.map((r) => ({ ...r, id: ++uid }))])
         setPages((ps) => ps.map((x) => (x.id === p.id ? { ...x, status: 'done', found: found.length } : x)))
       } catch (err) {
