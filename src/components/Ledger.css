@@ -218,3 +218,68 @@
     grid-column: auto;
   }
 }
+
+.lg-next {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* «Малый бизнес»: choose how to start */
+.sb-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+}
+.sb-switch button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  text-align: left;
+  color: var(--muted);
+}
+.sb-switch button > *:not(.sb-pill) {
+  position: relative;
+  z-index: 1;
+}
+.sb-switch button > span:last-child {
+  display: grid;
+}
+.sb-switch b {
+  font-size: 15px;
+  color: var(--text-2);
+}
+.sb-switch button > span:last-child > span {
+  font-size: 12.5px;
+}
+.sb-switch button.is-on b,
+.sb-switch button.is-on svg {
+  color: var(--text);
+}
+.sb-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: rgba(76, 125, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(76, 125, 255, 0.45) inset;
+}
+@media (max-width: 560px) {
+  .sb-switch button {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 12px;
+  }
+}

@@ -2,6 +2,8 @@ import { useMemo, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LEDGER_MAX_IMAGE_BYTES, LEDGER_MAX_PAGES, fullDate } from '../../shared/ledger'
+import { TURNOVERS } from '../../shared/audit'
+import type { Problem, Turnover } from '../../shared/audit'
 import type { LedgerKind, LedgerRow } from '../../shared/ledger'
 import type { SalesData } from '../../shared/marketplace'
 import { buildSales } from '../lib/table'
@@ -28,6 +30,13 @@ const ERRORS: Record<string, string> = {
 }
 
 let uid = 0
+
+export type LedgerPlan = { turnover?: Turnover; problem?: Problem; details: string }
+
+const toDay = (d: string) => {
+  const m = fullDate(d.trim()).match(/^(\d{2})\.(\d{2})\.(\d{4})$/)
+  return m ? new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])).getTime() : null
+}
 
 /** Downscale to ≤1600 px and JPEG so a phone photo fits the API limits. */
 async function toDataUrl(blob: Blob): Promise<string> {
@@ -58,7 +67,7 @@ async function recognise(image: string): Promise<LedgerRow[]> {
   return data.rows
 }
 
-export default function Ledger() {
+export default function Ledger({ onPlan }: { onPlan?: (p: LedgerPlan) => void }) {
   const [stage, setStage] = useState<Stage>({ name: 'pick' })
   const [pages, setPages] = useState<Page[]>([])
   const [rows, setRows] = useState<(LedgerRow & { id: number })[]>([])
@@ -139,6 +148,27 @@ export default function Ledger() {
     setStage({ name: 'done', data: res && res.ok ? res.data : null })
   }
 
+  /** Monthly turnover and a short summary of the notebook for the 30-day plan. */
+  const plan = (): LedgerPlan => {
+    const days = rows.map((r) => toDay(r.date)).filter((d): d is number => d !== null)
+    const span = days.length ? Math.max(1, Math.round((Math.max(...days) - Math.min(...days)) / 86_400_000) + 1) : 0
+    const monthly = span ? (totals.inc / span) * 30 : 0
+    const turnover = span ? (monthly < 3e6 ? 't1' : monthly < 1e7 ? 't2' : monthly < 3e7 ? 't3' : monthly < 1e8 ? 't4' : 't5') : undefined
+    const top = new Map<string, number>()
+    rows.filter((r) => r.kind === 'in').forEach((r) => top.set(r.item, (top.get(r.item) ?? 0) + r.amount))
+    const best = [...top].sort((a, b) => b[1] - a[1]).slice(0, 3)
+    const money = (n: number) => `${Math.round(n).toLocaleString('ru-RU')} ${currency}`
+    const details = [
+      `По тетради${span ? ` за ${span} дн.` : ''}: приход ${money(totals.inc)}, расход ${money(totals.out)}, прибыль ${money(totals.profit)}.`,
+      totals.costs.length ? `Главные расходы: ${totals.costs.slice(0, 3).map(([n, v]) => `${n} ${money(v)}`).join(', ')}.` : '',
+      best.length ? `Больше всего продаж: ${best.map(([n, v]) => `${n} ${money(v)}`).join(', ')}.` : '',
+      turnover ? `Оборот в месяц ≈ ${money(monthly)} (${TURNOVERS.find((t) => t.id === turnover)!.label}).` : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+    return { turnover, problem: totals.out > totals.inc * 0.8 ? 'costs' : undefined, details }
+  }
+
   const reset = () => {
     setPages([])
     setRows([])
@@ -149,7 +179,7 @@ export default function Ledger() {
   const fmt = (n: number) => fmtCur(n, currency)
 
   return (
-    <div className="ws-body lg">
+    <div className="lg">
       <AnimatePresence mode="wait">
         {(stage.name === 'pick' || stage.name === 'read') && (
           <motion.div key="pick" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -369,9 +399,16 @@ export default function Ledger() {
                 </button>
               </div>
             )}
-            <button type="button" className="btn btn-ghost btn-sm lg-back" onClick={() => setStage({ name: 'edit' })}>
-              ← Исправить строки
-            </button>
+            <div className="lg-next">
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStage({ name: 'edit' })}>
+                ← Исправить строки
+              </button>
+              {onPlan && (
+                <button type="button" className="btn btn-primary" onClick={() => onPlan(plan())}>
+                  План на 30 дней по этим записям <span className="arrow">→</span>
+                </button>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

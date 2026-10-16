@@ -30,7 +30,10 @@ const STAGES = ['Сбор информации', 'Анализ процессо�
 
 const FIELD_ORDER = ['businessType', 'turnover', 'problem', 'employees', 'details'] as const
 
-export default function Audit() {
+/** Numbers carried over from the analysed notebook; `key` changes on every hand-over. */
+export type AuditPrefill = { key: number; turnover?: Turnover; problem?: Problem; details?: string }
+
+export default function Audit({ prefill }: { prefill?: AuditPrefill }) {
   const [form, setForm] = useState<Form>(EMPTY)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [phase, setPhase] = useState<Phase>({ name: 'form' })
@@ -39,6 +42,20 @@ export default function Audit() {
   const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => () => abortRef.current?.abort(), [])
+
+  useEffect(() => {
+    if (!prefill) return
+    abortRef.current?.abort()
+    setPhase({ name: 'form' })
+    setErrors({})
+    setForm((f) => ({
+      ...f,
+      turnover: prefill.turnover ?? f.turnover,
+      problem: prefill.problem ?? f.problem,
+      details: (prefill.details ?? f.details).slice(0, DETAILS_MAX),
+    }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefill?.key])
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => {
     setForm((f) => ({ ...f, [k]: v }))
@@ -112,13 +129,11 @@ export default function Audit() {
 
   return (
     <div className="ws-body" ref={topRef}>
-      <a href="#ledger" className="audit-ledger-hint">
-        <Icon name="camera" size={18} />
-        <span>
-          <b>Ведёте учёт в тетради?</b> Сфотографируйте страницу — ИИ сам перепишет приход и расход.
-        </span>
-        <span className="arrow" aria-hidden="true">→</span>
-      </a>
+      {prefill && phase.name === 'form' && (
+        <p className="audit-prefilled">
+          <Icon name="check" size={16} /> Цифры из тетради уже подставлены. Выберите тип бизнеса и число сотрудников — и получите план.
+        </p>
+      )}
 
         <AnimatePresence mode="wait">
           {phase.name === 'form' && (
