@@ -186,9 +186,6 @@ export default function Marketplaces() {
                     <Icon name="check" size={16} />
                     <span>Ключ не сохраняется. Используйте ключ «только чтение».</span>
                   </div>
-                  {provider === 'kaspi' && (
-                    <p className="muted small">При ошибке 403 нужен сервер в Казахстане.</p>
-                  )}
                   {provider === 'wb' && <p className="muted small">Лимит WB — 1 запрос в минуту.</p>}
                   {provider === 'ozon' && <p className="muted small">Данные из аналитики Ozon.</p>}
                 </aside>
